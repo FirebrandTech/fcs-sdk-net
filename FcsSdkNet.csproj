@@ -30,9 +30,11 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Cloud.Api.V2.Model, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>.\Cloud.Api.V2.Model.dll</HintPath>
+    <Reference Include="Cloud.Api.V2.Model">
+      <HintPath>lib\Cloud.Api.V2.Model.dll</HintPath>
+    </Reference>
+    <Reference Include="Cloud.Framework">
+      <HintPath>lib\Cloud.Framework.dll</HintPath>
     </Reference>
     <Reference Include="ServiceStack.Client">
       <HintPath>packages\ServiceStack.Client.4.0.35\lib\net40\ServiceStack.Client.dll</HintPath>
@@ -55,9 +57,6 @@
   <ItemGroup>
     <Compile Include="FcsClient.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Cloud.Api.V2.Model.dll" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

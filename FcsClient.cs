@@ -33,16 +33,21 @@ namespace Fcs {
                                    RequestFilter = r => {
                                                        r.Headers.Add(ApiKeyHeader, this._apiKey);
                                                        r.Headers.Add(NoRedirectHeader, "true");
-                                                       var cookies = HttpContext.Current.Request.Cookies;
-                                                       for (var i = 0; i < cookies.Count; i++) {
-                                                           var cookie = cookies[i];
-                                                           if (cookie == null || cookie.Name != FcsTicketCookie) continue;
-                                                           r.CookieContainer.Add(new Cookie(cookie.Name, cookie.Value)
-                                                                                 {
-                                                                                     Domain = this._cookieDomain
-                                                                                 });
-                                                       }
-                                                   },
+                                                            if (HttpContext.Current != null) {
+                                                                var cookies = HttpContext.Current.Request.Cookies;
+                                                                for (var i = 0; i < cookies.Count; i++)
+                                                                {
+                                                                    var cookie = cookies[i];
+                                                                    if (cookie == null || cookie.Name != FcsTicketCookie)
+                                                                        continue;
+                                                                    r.CookieContainer.Add(new Cookie(cookie.Name,
+                                                                        cookie.Value)
+                                                                    {
+                                                                        Domain = this._cookieDomain
+                                                                    });
+                                                                }
+                                                            }
+                                   },
                                    ResponseFilter = r => {
                                                         foreach (Cookie cookie in r.Cookies) {
                                                             if (cookie.Name != FcsTicketCookie) continue;
@@ -61,6 +66,10 @@ namespace Fcs {
 
         public AuthResponse Unauth() {
             return this.Client.Delete(new AuthRequest());
+        }
+
+        public object PlaceOrder(OrderDto order) {
+            return this.Client.Post(order);
         }
 
         public void Dispose() {
