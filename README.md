@@ -10,7 +10,7 @@ When the ServiceStack dependency is automatically installed, you will be prompte
 
 Here is a simple console application which posts an order to the Firebrand Cloud Services APIs and prints the JSON response.  You will need to substitute your own values for apiKey and serviceUrl.
 
-```
+```c#
 using System;
 using System.Collections.Generic;
 using System.IO;
