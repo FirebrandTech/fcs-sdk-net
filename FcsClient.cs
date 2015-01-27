@@ -14,13 +14,15 @@ namespace Fcs {
         private const string FcsTicketCookie = "fcs-ticket";
 
         private readonly string _apiKey;
-        private readonly string _serviceUrl;
+        private readonly string _apiSecret;
         private readonly string _cookieDomain;
+        private readonly string _serviceUrl;
         private JsonServiceClient _client;
 
-        public FcsClient(string serviceUrl, string apiKey) {
+        public FcsClient(string serviceUrl, string apiKey, string apiSecret = "") {
             this._serviceUrl = serviceUrl;
             this._apiKey = apiKey;
+            this._apiSecret = apiSecret;
             this._cookieDomain = new Uri(this._serviceUrl).Authority;
         }
 
@@ -35,23 +37,17 @@ namespace Fcs {
                                                        r.Headers.Add(NoRedirectHeader, "true");
                                                             if (HttpContext.Current != null) {
                                                                 var cookies = HttpContext.Current.Request.Cookies;
-                                                                for (var i = 0; i < cookies.Count; i++)
-                                                                {
+                                                                for (var i = 0; i < cookies.Count; i++) {
                                                                     var cookie = cookies[i];
-                                                                    if (cookie == null || cookie.Name != FcsTicketCookie)
-                                                                        continue;
-                                                                    r.CookieContainer.Add(new Cookie(cookie.Name,
-                                                                        cookie.Value)
-                                                                    {
-                                                                        Domain = this._cookieDomain
-                                                                    });
+                                                                    if (cookie == null || cookie.Name != FcsTicketCookie) continue;
+                                                                    r.Headers.Add("Authorization", String.Format("Bearer {0}", cookie.Value));
                                                                 }
                                                             }
                                    },
                                    ResponseFilter = r => {
                                                         foreach (Cookie cookie in r.Cookies) {
                                                             if (cookie.Name != FcsTicketCookie) continue;
-                                                            SetCookie(cookie.Name, cookie.Value, cookie.Expires);
+                                                            SetCookie(cookie.Name, cookie.Value, cookie.Expires, httpOnly:false);
                                                         }
                                                     }
                                };
@@ -60,11 +56,23 @@ namespace Fcs {
             }
         }
 
+        public void Dispose() {
+            if (this._client == null) return;
+            this._client.Dispose();
+            this._client = null;
+        }
+
         public AuthResponse Auth(AuthRequest request) {
+            request.AccessToken = this._apiSecret;
             return this.Client.Post(request);
         }
 
+        public AuthResponse AuthOrRegister(AuthRequest request) {
+            request.AutoCreate = true;
+            return this.Auth(request);
+        }
         public AuthResponse Unauth() {
+            RemoveCookie(FcsTicketCookie);
             return this.Client.Delete(new AuthRequest());
         }
 
@@ -72,21 +80,21 @@ namespace Fcs {
             return this.Client.Post(order);
         }
 
-        public void Dispose() {
-            if (this._client == null) return;
-            this._client.Dispose();
-            this._client = null;
+        private static void RemoveCookie(string name) {
+            var cookies = HttpContext.Current.Response.Cookies;
+            cookies.Remove(name);
         }
 
-        private static void SetCookie(string name, string value, DateTime expires) {
+        private static void SetCookie(string name, string value, DateTime expires, bool httpOnly = true) {
             var cookies = HttpContext.Current.Response.Cookies;
             value = HttpUtility.UrlEncode(value);
-            var cookie = new HttpCookie(name, value) {
-                Path = FormsAuthentication.FormsCookiePath,
-                HttpOnly = true,
-                Secure = FormsAuthentication.RequireSSL,
-                Expires = expires
-            };
+            var cookie = new HttpCookie(name, value)
+                         {
+                             Path = FormsAuthentication.FormsCookiePath,
+                             HttpOnly = httpOnly,
+                             Secure = FormsAuthentication.RequireSSL,
+                             Expires = expires
+                         };
 
             if (!string.IsNullOrWhiteSpace(FormsAuthentication.CookieDomain)) {
                 cookie.Domain = FormsAuthentication.CookieDomain;
