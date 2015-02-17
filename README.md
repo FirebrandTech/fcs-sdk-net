@@ -2,6 +2,8 @@ This is a .NET SDK for interacting with the Firebrand Cloud Services APIs.
 
 # Install with NuGet
 
+[![Join the chat at https://gitter.im/FirebrandTech/fcs-sdk-net](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/FirebrandTech/fcs-sdk-net?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 In Visual Studio, go to Tools > NuGet Package Manager > Manage NuGet Packages for Solution
 Search the Online packages for FcsSdkNet.  Click "Install."
 When the ServiceStack dependency is automatically installed, you will be prompted to accept a license agreement.
