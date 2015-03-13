@@ -25,7 +25,7 @@ using Cloud.Api.V2.Model;
 If your site is embedding some of Firebrand's widgets, you can use the FcsClient to authenticate your users like this before displaying the widget:
 
 ```c#
-client.AuthOrRegister(new AuthRequest
+client.Auth(new AuthRequest
                                    {
                                        UserName = email
                                    });

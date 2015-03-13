@@ -67,10 +67,6 @@ namespace Fcs {
             return this.Client.Post(request);
         }
 
-        public AuthResponse AuthOrRegister(AuthRequest request) {
-            request.AutoCreate = true;
-            return this.Auth(request);
-        }
         public AuthResponse Unauth() {
             RemoveCookie(FcsTicketCookie);
             return this.Client.Delete(new AuthRequest());
