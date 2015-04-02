@@ -49,6 +49,10 @@ build:
   include_nuget_references: true  # add -IncludeReferencedProjects option while packaging NuGet artifacts
   verbosity: minimal
 
+# scripts to run before build
+before_build:
+    - nuget restore
+
 test:
   assemblies:
     - Test\UnitTests\**\UnitTests.dll
