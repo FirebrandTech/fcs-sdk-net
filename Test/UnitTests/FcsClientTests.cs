@@ -19,7 +19,7 @@ namespace UnitTests {
         private const string AppId = "APPID";
         private const string Token = "TOKEN";
         private const string Token2 = "TOKEN2";
-        private const string Url = "https://cloud.firebrandtech.com/api/v2";
+        //private const string Url = "https://cloud.firebrandtech.com/api/v2";
         private readonly DateTime _expiration;
         private readonly DateTime _expiration2;
 
@@ -324,6 +324,249 @@ namespace UnitTests {
             A.CallTo(() => client.Post(A<Catalog>._,
                                        A<Dictionary<string, string>>.That.Matches(h => h["X-Fcs-App"] == AppId &&
                                                                                        h["Authorization"] == "Bearer " + Token)))
+             .MustHaveHappened(Repeated.Exactly.Once);
+        }
+
+        [Fact]
+        public void Web_ExistingAuth_NoUser() {
+            var context = A.Fake<IContext>();
+            A.CallTo(() => context.CurrentUserName).Returns(null);
+
+            var client = A.Fake<IServiceClient>();
+            A.CallTo(() => client.Post(A<AuthRequest>._, A<Dictionary<string, string>>._))
+             .Returns(new AuthResponse
+                      {
+                          Token = Token,
+                          Expires = this._expiration
+                      });
+            var factory = A.Fake<IServiceClientFactory>();
+            A.CallTo(() => factory.CreateClient(A<string>._))
+             .Returns(client);
+
+            var fcs = new FcsClient(ClientId, ClientSecret, AppId)
+                      {
+                          Context = context,
+                          ServiceClientFactory = factory
+                      };
+            fcs.Auth();
+
+            var context2 = A.Fake<IContext>();
+            A.CallTo(() => context2.CurrentUserName).Returns(null);
+            A.CallTo(() => context2.GetRequestCookie(AppId + "-token"))
+             .Returns(new HttpCookie(AppId + "-token", Token)
+                      {
+                          Expires = this._expiration
+                      });
+
+            var fcs2 = new FcsClient(ClientId, ClientSecret, AppId)
+                       {
+                           Context = context2,
+                           ServiceClientFactory = factory
+                       };
+
+
+            fcs2.Auth();
+            fcs2.PublishCatalog(new Catalog());
+
+            A.CallTo(() => context2.SetResponseCookie(A<string>._, A<string>._, A<DateTime>._))
+             .MustNotHaveHappened();
+
+            A.CallTo(() => client.Post(A<Catalog>._,
+                                       A<Dictionary<string, string>>.That.Matches(h => h["X-Fcs-App"] == AppId &&
+                                                                                       h["Authorization"] == "Bearer " + Token)))
+             .MustHaveHappened(Repeated.Exactly.Once);
+        }
+
+        [Fact]
+        public void Web_NewAuth_NewUser() {
+            var context = A.Fake<IContext>();
+            A.CallTo(() => context.CurrentUserName).Returns("testuser");
+
+            var client = A.Fake<IServiceClient>();
+            A.CallTo(() => client.Post(A<AuthRequest>._, A<Dictionary<string, string>>._))
+             .Returns(new AuthResponse
+                      {
+                          Token = Token,
+                          Expires = this._expiration
+                      });
+            var factory = A.Fake<IServiceClientFactory>();
+            A.CallTo(() => factory.CreateClient(A<string>._))
+             .Returns(client);
+
+            var fcs = new FcsClient(ClientId, ClientSecret, AppId)
+                      {
+                          Context = context,
+                          ServiceClientFactory = factory
+                      };
+            fcs.Auth();
+
+            A.CallTo(() => context.SetResponseCookie(AppId + "-token", Token, this._expiration))
+             .MustHaveHappened(Repeated.Exactly.Once);
+            A.CallTo(() => context.SetResponseCookie(AppId + "-user", "testuser", this._expiration))
+             .MustHaveHappened(Repeated.Exactly.Once);
+
+            var context2 = A.Fake<IContext>();
+            A.CallTo(() => context2.CurrentUserName).Returns("testuser");
+            A.CallTo(() => context2.GetRequestCookie(AppId + "-token"))
+             .Returns(new HttpCookie(AppId + "-token", Token)
+                      {
+                          Expires = this._expiration
+                      });
+            A.CallTo(() => context2.GetRequestCookie(AppId + "-user"))
+             .Returns(new HttpCookie(AppId + "-user", "testuser"));
+
+            var fcs2 = new FcsClient(ClientId, ClientSecret, AppId)
+                       {
+                           Context = context2,
+                           ServiceClientFactory = factory
+                       };
+
+
+            fcs2.PublishCatalog(new Catalog());
+            fcs2.Token.Should().Be(Token);
+            fcs2.TokenExpires.Should().Be(this._expiration);
+            fcs2.User.Should().Be("testuser");
+
+            A.CallTo(() => client.Post(A<Catalog>._,
+                                       A<Dictionary<string, string>>.That.Matches(h => h["X-Fcs-App"] == AppId &&
+                                                                                       h["Authorization"] == "Bearer " + Token)))
+             .MustHaveHappened(Repeated.Exactly.Once);
+        }
+
+        [Fact]
+        public void Web_ExistingAppAuth_NewUser() {
+            var context = A.Fake<IContext>();
+            A.CallTo(() => context.CurrentUserName).Returns(null);
+
+            var client = A.Fake<IServiceClient>();
+            A.CallTo(() => client.Post(A<AuthRequest>.That.Matches(r => r.ClientId == ClientId &&
+                                                                        r.ClientSecret == ClientSecret &&
+                                                                        r.UserName == null),
+                                       A<Dictionary<string, string>>._))
+             .Returns(new AuthResponse
+                      {
+                          Token = Token,
+                          Expires = this._expiration
+                      });
+            A.CallTo(() => client.Post(A<AuthRequest>.That.Matches(r => r.ClientId == null &&
+                                                                        r.ClientSecret == null &&
+                                                                        r.UserName != null),
+                                       A<Dictionary<string, string>>._))
+             .Returns(new AuthResponse
+                      {
+                          Token = Token2,
+                          Expires = this._expiration2
+                      });
+            var factory = A.Fake<IServiceClientFactory>();
+            A.CallTo(() => factory.CreateClient(A<string>._))
+             .Returns(client);
+
+            var fcs = new FcsClient(ClientId, ClientSecret, AppId)
+                      {
+                          Context = context,
+                          ServiceClientFactory = factory
+                      };
+            fcs.Auth();
+
+            A.CallTo(() => context.SetResponseCookie(AppId + "-token", Token, this._expiration))
+             .MustHaveHappened(Repeated.Exactly.Once);
+
+            var context2 = A.Fake<IContext>();
+            A.CallTo(() => context2.CurrentUserName).Returns("testuser");
+            A.CallTo(() => context2.GetRequestCookie(AppId + "-token"))
+             .Returns(new HttpCookie(AppId + "-token", Token)
+                      {
+                          Expires = this._expiration
+                      });
+            A.CallTo(() => context2.GetRequestCookie(AppId + "-user"))
+             .Returns(null);
+
+            var fcs2 = new FcsClient(ClientId, ClientSecret, AppId)
+                       {
+                           Context = context2,
+                           ServiceClientFactory = factory
+                       };
+
+            fcs2.Auth();
+            A.CallTo(() => context2.SetResponseCookie(AppId + "-user", "testuser", this._expiration2))
+             .MustHaveHappened(Repeated.Exactly.Once);
+            A.CallTo(() => context2.SetResponseCookie(AppId + "-token", Token2, this._expiration2))
+             .MustHaveHappened(Repeated.Exactly.Once);
+
+            fcs2.PublishCatalog(new Catalog());
+            fcs2.Token.Should().Be(Token2);
+            fcs2.TokenExpires.Should().Be(this._expiration2);
+            fcs2.User.Should().Be("testuser");
+
+            A.CallTo(() => client.Post(A<Catalog>._,
+                                       A<Dictionary<string, string>>.That.Matches(h => h["X-Fcs-App"] == AppId &&
+                                                                                       h["Authorization"] == "Bearer " + Token2)))
+             .MustHaveHappened(Repeated.Exactly.Once);
+        }
+
+        [Fact]
+        public void Web_ExistingUserAuth_NewUser() {
+            var context = A.Fake<IContext>();
+            A.CallTo(() => context.CurrentUserName).Returns("testuser1");
+
+            var client = A.Fake<IServiceClient>();
+            A.CallTo(() => client.Post(A<AuthRequest>.That.Matches(r => r.ClientId == ClientId &&
+                                                                        r.ClientSecret == ClientSecret &&
+                                                                        r.UserName != null),
+                                       A<Dictionary<string, string>>._))
+             .Returns(new AuthResponse {
+                 Token = Token,
+                 Expires = this._expiration
+             });
+            A.CallTo(() => client.Post(A<AuthRequest>.That.Matches(r => r.ClientId == null &&
+                                                                        r.ClientSecret == null &&
+                                                                        r.UserName != null),
+                                       A<Dictionary<string, string>>._))
+             .Returns(new AuthResponse {
+                 Token = Token2,
+                 Expires = this._expiration2
+             });
+            var factory = A.Fake<IServiceClientFactory>();
+            A.CallTo(() => factory.CreateClient(A<string>._))
+             .Returns(client);
+
+            var fcs = new FcsClient(ClientId, ClientSecret, AppId) {
+                Context = context,
+                ServiceClientFactory = factory
+            };
+            fcs.Auth();
+
+            A.CallTo(() => context.SetResponseCookie(AppId + "-token", Token, this._expiration))
+             .MustHaveHappened(Repeated.Exactly.Once);
+
+            var context2 = A.Fake<IContext>();
+            A.CallTo(() => context2.CurrentUserName).Returns("testuser2");
+            A.CallTo(() => context2.GetRequestCookie(AppId + "-token"))
+             .Returns(new HttpCookie(AppId + "-token", Token) {
+                 Expires = this._expiration
+             });
+            A.CallTo(() => context2.GetRequestCookie(AppId + "-user"))
+             .Returns(null);
+
+            var fcs2 = new FcsClient(ClientId, ClientSecret, AppId) {
+                Context = context2,
+                ServiceClientFactory = factory
+            };
+
+            fcs2.Auth();
+            A.CallTo(() => context2.SetResponseCookie(AppId + "-user", "testuser2", this._expiration2))
+             .MustHaveHappened(Repeated.Exactly.Once);
+            A.CallTo(() => context2.SetResponseCookie(AppId + "-token", Token2, this._expiration2))
+             .MustHaveHappened(Repeated.Exactly.Once);
+
+            fcs2.PublishCatalog(new Catalog());
+            fcs2.Token.Should().Be(Token2);
+            fcs2.TokenExpires.Should().Be(this._expiration2);
+            fcs2.User.Should().Be("testuser2");
+
+            A.CallTo(() => client.Post(A<Catalog>._,
+                                       A<Dictionary<string, string>>.That.Matches(h => h["X-Fcs-App"] == AppId &&
+                                                                                       h["Authorization"] == "Bearer " + Token2)))
              .MustHaveHappened(Repeated.Exactly.Once);
         }
     }

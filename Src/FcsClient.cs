@@ -98,6 +98,7 @@ namespace Fcs {
             this._tokenExpires = auth.Expires;
             this._user = request.UserName;
             this.Context.SetResponseCookie(this._tokenCookie, auth.Token, auth.Expires ?? DateTime.MinValue);
+            if (!this._user.IsNullOrEmpty()) this.Context.SetResponseCookie(this._userCookie, this._user, auth.Expires ?? DateTime.MinValue);
 
             return auth;
         }
@@ -109,6 +110,8 @@ namespace Fcs {
                 request.ClientSecret = this._clientSecret;
                 return false;
             }
+            request.ClientId = null;
+            request.ClientSecret = null;
             var user = this.GetAuthedUser();
             if (request.UserName.IsNullOrEmpty() &&
                 user.IsNullOrEmpty()) return true;
@@ -135,6 +138,7 @@ namespace Fcs {
                               {AppHeader, this._appId}
                           };
             var token = this.GetValidToken();
+            this.GetAuthedUser(); // Call this to update this._user from cookie if possible.
             if (token.IsNullOrEmpty()) return headers;
             headers.Add("Authorization", String.Format("Bearer {0}", token));
             return headers;
