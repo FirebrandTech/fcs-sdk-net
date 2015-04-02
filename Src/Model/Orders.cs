@@ -71,7 +71,7 @@ namespace Fcs.Model {
      */
 
     [Route("/orders", "POST", Summary = "Create an Order")]
-    public class Order {
+    public class Order : IReturn<Order> {
         public Guid? Id { get; set; }
         public decimal? TotalPrice { get; set; }
         public decimal? Tax { get; set; }
