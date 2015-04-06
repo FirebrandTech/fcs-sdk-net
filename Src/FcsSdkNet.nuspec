@@ -11,7 +11,7 @@
         <releaseNotes>Initial release, with support for authentication and posting orders.</releaseNotes>
         <copyright>Copyright 2015 Firebrand Technologies</copyright>
         <dependencies>
-            <dependency id="ServiceStack.Client" version="4.0.38"/>
+            <dependency id="ServiceStack.Client" version="4.0.33"/>
         </dependencies>
     </metadata>
 </package>
