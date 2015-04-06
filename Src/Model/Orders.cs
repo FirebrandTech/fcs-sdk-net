@@ -84,6 +84,7 @@ namespace Fcs.Model {
         public DateTime? CreatedAt { get; set; }
         public string Source { get; set; }
         public User User { get; set; }
+        public string UserName { get; set; }
         public string DiscountCode { get; set; }
         public string TrackingNumber { get; set; }
     }

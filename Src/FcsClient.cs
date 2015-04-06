@@ -3,13 +3,13 @@
 using System;
 using System.Collections.Generic;
 using System.Web;
+using Cloud.Api.V2.Model;
 using Fcs.Framework;
 using Fcs.Model;
-using ServiceStack;
-using IServiceClient = Fcs.Framework.IServiceClient;
+using StringExtensions = ServiceStack.StringExtensions;
 
 namespace Fcs {
-    public sealed class FcsClient : IDisposable {
+    public class FcsClient : IDisposable {
         private const string AppHeader = "X-Fcs-App";
         private readonly string _apiUrl;
         private readonly string _appId;
@@ -73,10 +73,15 @@ namespace Fcs {
             }
         }
 
-        public void Dispose() {
+        protected virtual void Dispose(bool disposing) {
             if (this._client == null) return;
             this._client.Dispose();
             this._client = null;
+        }
+
+        public void Dispose() {
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         public void Auth(string userName = null) {
@@ -98,14 +103,14 @@ namespace Fcs {
             this._tokenExpires = auth.Expires;
             this._user = request.UserName;
             this.Context.SetResponseCookie(this._tokenCookie, auth.Token, auth.Expires ?? DateTime.MinValue);
-            if (!this._user.IsNullOrEmpty()) this.Context.SetResponseCookie(this._userCookie, this._user, auth.Expires ?? DateTime.MinValue);
+            if (!StringExtensions.IsNullOrEmpty(this._user)) this.Context.SetResponseCookie(this._userCookie, this._user, auth.Expires ?? DateTime.MinValue);
 
             return auth;
         }
 
         private bool IsAuthed(AuthRequest request) {
             var token = this.GetValidToken();
-            if (token.IsNullOrEmpty()) {
+            if (StringExtensions.IsNullOrEmpty(token)) {
                 request.ClientId = this._clientId;
                 request.ClientSecret = this._clientSecret;
                 return false;
@@ -113,8 +118,8 @@ namespace Fcs {
             request.ClientId = null;
             request.ClientSecret = null;
             var user = this.GetAuthedUser();
-            if (request.UserName.IsNullOrEmpty() &&
-                user.IsNullOrEmpty()) return true;
+            if (StringExtensions.IsNullOrEmpty(request.UserName) &&
+                StringExtensions.IsNullOrEmpty(user)) return true;
 
             return string.Equals(request.UserName, user, StringComparison.OrdinalIgnoreCase);
         }
@@ -125,10 +130,12 @@ namespace Fcs {
         }
 
         public object PlaceOrder(Order order) {
+            this.Auth(order.UserName ?? (order.User ?? new User()).Email);
             return this.ServiceClient.Post(order, this.GetHeaders());
         }
 
         public Catalog PublishCatalog(Catalog catalog) {
+            this.Auth();
             return this.ServiceClient.Post(catalog, this.GetHeaders());
         }
 
@@ -139,8 +146,9 @@ namespace Fcs {
                           };
             var token = this.GetValidToken();
             this.GetAuthedUser(); // Call this to update this._user from cookie if possible.
-            if (token.IsNullOrEmpty()) return headers;
+            if (StringExtensions.IsNullOrEmpty(token)) return headers;
             headers.Add("Authorization", String.Format("Bearer {0}", token));
+            headers.Add("X-NoRedirect", "true");
             return headers;
         }
 
@@ -154,11 +162,11 @@ namespace Fcs {
         }
 
         private bool TokenIsValid() {
-            return !this._token.IsNullOrEmpty() && DateTime.UtcNow < this._tokenExpires;
+            return !StringExtensions.IsNullOrEmpty(this._token) && DateTime.UtcNow < this._tokenExpires;
         }
 
         private string GetAuthedUser() {
-            if (!this._user.IsNullOrEmpty()) return this._user;
+            if (!StringExtensions.IsNullOrEmpty(this._user)) return this._user;
             var cookie = this.Context.GetRequestCookie(this._userCookie);
             if (cookie == null) return null;
             this._user = cookie.Value;

@@ -28,6 +28,7 @@ namespace Fcs.Framework {
         }
 
         public void SetResponseCookie(string name, string value, DateTime expires) {
+            if (HttpContext.Current == null) return;
             var cookies = HttpContext.Current.Response.Cookies;
             value = HttpUtility.UrlEncode(value);
             var cookie = new HttpCookie(name) {

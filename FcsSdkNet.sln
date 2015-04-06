@@ -18,6 +18,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		appveyor.yml = appveyor.yml
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleTests", "Test\ConsoleTests\ConsoleTests.csproj", "{FD3758D3-9939-42CF-811A-29280B85E005}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -50,6 +52,12 @@ Global
 		{EFA5AAC9-E6C8-4C89-944A-419246E985D9}.Release|Any CPU.Build.0 = Release|Any CPU
 		{EFA5AAC9-E6C8-4C89-944A-419246E985D9}.Release|x64.ActiveCfg = Release|x64
 		{EFA5AAC9-E6C8-4C89-944A-419246E985D9}.Release|x64.Build.0 = Release|x64
+		{FD3758D3-9939-42CF-811A-29280B85E005}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FD3758D3-9939-42CF-811A-29280B85E005}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FD3758D3-9939-42CF-811A-29280B85E005}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{FD3758D3-9939-42CF-811A-29280B85E005}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FD3758D3-9939-42CF-811A-29280B85E005}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FD3758D3-9939-42CF-811A-29280B85E005}.Release|x64.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -58,5 +66,6 @@ Global
 		{742D8A3A-67F8-46AD-B189-82D6FD4EF089} = {B58BF460-C8DE-4D87-AB6E-E9EFD6220290}
 		{3B82243D-B003-442C-84E2-68D5F2DA42BB} = {E940186F-BF0A-4CE9-9579-0B6410F6E3B0}
 		{EFA5AAC9-E6C8-4C89-944A-419246E985D9} = {E940186F-BF0A-4CE9-9579-0B6410F6E3B0}
+		{FD3758D3-9939-42CF-811A-29280B85E005} = {E940186F-BF0A-4CE9-9579-0B6410F6E3B0}
 	EndGlobalSection
 EndGlobal
