@@ -135,7 +135,7 @@ namespace Fcs {
         }
 
         public Catalog PublishCatalog(Catalog catalog) {
-            this.Auth();
+            this.Auth(this._user);
             return this.ServiceClient.Post(catalog, this.GetHeaders());
         }
 

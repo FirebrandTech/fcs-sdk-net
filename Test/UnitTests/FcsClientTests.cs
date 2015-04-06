@@ -181,38 +181,39 @@ namespace UnitTests {
             A.CallTo(() => factory.CreateClient(A<string>._))
              .Returns(client);
 
-            var fcs = new FcsClient(ClientId, ClientSecret, AppId)
-                      {
-                          Context = context,
-                          ServiceClientFactory = factory
-                      };
-            fcs.Auth();
+            using (var fcs = new FcsClient(ClientId, ClientSecret, AppId)
+                             {
+                                 Context = context,
+                                 ServiceClientFactory = factory
+                             }) {
+                fcs.Auth();
 
-            fcs.Auth("testuser");
+                fcs.Auth("testuser");
 
-            fcs.Token.Should().Be(Token2);
-            fcs.TokenExpires.Should().Be(this._expiration2);
-            fcs.User.Should().Be("testuser");
+                fcs.Token.Should().Be(Token2);
+                fcs.TokenExpires.Should().Be(this._expiration2);
+                fcs.User.Should().Be("testuser");
 
-            A.CallTo(() => client.Post(A<AuthRequest>.That.Matches(r => r.ClientId == ClientId &&
-                                                                        r.ClientSecret == ClientSecret &&
-                                                                        r.UserName == null),
-                                       A<Dictionary<string, string>>.That.Matches(h => h["X-Fcs-App"] == AppId)))
-             .MustHaveHappened(Repeated.Exactly.Once);
+                A.CallTo(() => client.Post(A<AuthRequest>.That.Matches(r => r.ClientId == ClientId &&
+                                                                            r.ClientSecret == ClientSecret &&
+                                                                            r.UserName == null),
+                                           A<Dictionary<string, string>>.That.Matches(h => h["X-Fcs-App"] == AppId)))
+                 .MustHaveHappened(Repeated.Exactly.Once);
 
-            A.CallTo(() => client.Post(A<AuthRequest>.That.Matches(r => r.ClientId == null &&
-                                                                        r.ClientSecret == null &&
-                                                                        r.UserName == "testuser"),
-                                       A<Dictionary<string, string>>.That.Matches(h => h["X-Fcs-App"] == AppId &&
-                                                                                       h["Authorization"] == "Bearer " + Token)))
-             .MustHaveHappened(Repeated.Exactly.Once);
+                A.CallTo(() => client.Post(A<AuthRequest>.That.Matches(r => r.ClientId == null &&
+                                                                            r.ClientSecret == null &&
+                                                                            r.UserName == "testuser"),
+                                           A<Dictionary<string, string>>.That.Matches(h => h["X-Fcs-App"] == AppId &&
+                                                                                           h["Authorization"] == "Bearer " + Token)))
+                 .MustHaveHappened(Repeated.Exactly.Once);
 
-            fcs.PublishCatalog(new Catalog());
+                fcs.PublishCatalog(new Catalog());
 
-            A.CallTo(() => client.Post(A<Catalog>._,
-                                       A<Dictionary<string, string>>.That.Matches(h => h["X-Fcs-App"] == AppId &&
-                                                                                       h["Authorization"] == "Bearer " + Token2)))
-             .MustHaveHappened(Repeated.Exactly.Once);
+                A.CallTo(() => client.Post(A<Catalog>._,
+                                           A<Dictionary<string, string>>.That.Matches(h => h["X-Fcs-App"] == AppId &&
+                                                                                           h["Authorization"] == "Bearer " + Token2)))
+                 .MustHaveHappened(Repeated.Exactly.Once);
+            }
         }
 
         [Fact]
