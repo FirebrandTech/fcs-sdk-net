@@ -6,10 +6,17 @@ using System.Web;
 using Cloud.Api.V2.Model;
 using Fcs.Framework;
 using Fcs.Model;
+using ServiceStack.Logging;
+using ServiceStack.Text;
+using ServiceStack.Text.Json;
 using StringExtensions = ServiceStack.StringExtensions;
 
 namespace Fcs {
     public class FcsClient : IDisposable {
+        private readonly ILog _logger = LogManager.GetLogger("FcsClient");
+
+        private static readonly object Sync = new object();
+
         private const string AppHeader = "X-Fcs-App";
         private readonly string _apiUrl;
         private readonly string _appId;
@@ -39,6 +46,11 @@ namespace Fcs {
             this._tokenCookie = appId + "-token";
             this._userCookie = appId + "-user";
             this.ServiceClientFactory = new JsonServiceClientFactory();
+        }
+
+        public static ILogFactory LogFactory {
+            get { return LogManager.LogFactory; }
+            set { LogManager.LogFactory = value; }
         }
 
         public string Token {
@@ -89,23 +101,31 @@ namespace Fcs {
         }
 
         public AuthResponse Auth(AuthRequest request) {
-            if (request == null) {
-                request = new AuthRequest
-                          {
-                              ClientId = this._clientId,
-                              ClientSecret = this._clientSecret,
-                              UserName = this.Context.CurrentUserName
-                          };
-            }
-            if (this.IsAuthed(request)) return null;
-            var auth = this.ServiceClient.Post(request, this.GetHeaders());
-            this._token = auth.Token;
-            this._tokenExpires = auth.Expires;
-            this._user = request.UserName;
-            this.Context.SetResponseCookie(this._tokenCookie, auth.Token, auth.Expires ?? DateTime.MinValue);
-            if (!StringExtensions.IsNullOrEmpty(this._user)) this.Context.SetResponseCookie(this._userCookie, this._user, auth.Expires ?? DateTime.MinValue);
+            lock (Sync) {
+                if (request == null) {
+                    request = new AuthRequest
+                              {
+                                  ClientId = this._clientId,
+                                  ClientSecret = this._clientSecret,
+                                  UserName = this.Context.CurrentUserName
+                              };
+                }
+                if (this.IsAuthed(request)) return null;
+                var headers = this.GetHeaders();
+                this._logger.DebugFormat("POST AUTH REQUEST: {0}", StringExtensions.ToJsv(request));
+                this._logger.DebugFormat("POST AUTH REQUEST HEADERS: {0}", StringExtensions.ToJsv(headers));
 
-            return auth;
+                var auth = this.ServiceClient.Post(request, this.GetHeaders());
+                this._logger.DebugFormat("POST AUTH RESPONSE: {0}", StringExtensions.ToJsv(auth));
+
+                this._token = auth.Token;
+                this._tokenExpires = auth.Expires;
+                this._user = request.UserName;
+                this.Context.SetResponseCookie(this._tokenCookie, auth.Token, auth.Expires ?? DateTime.MinValue);
+                if (!StringExtensions.IsNullOrEmpty(this._user)) this.Context.SetResponseCookie(this._userCookie, this._user, auth.Expires ?? DateTime.MinValue);
+
+                return auth;
+            }
         }
 
         private bool IsAuthed(AuthRequest request) {
