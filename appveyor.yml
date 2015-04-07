@@ -46,7 +46,7 @@ build:
   project: FcsSdkNet.sln          # path to Visual Studio solution or project
   publish_nuget: true             # package projects with .nuspec files and push to artifacts
   publish_nuget_symbols: true     # generate and publish NuGet symbol packages
-  include_nuget_references: true  # add -IncludeReferencedProjects option while packaging NuGet artifacts
+  #include_nuget_references: true  # add -IncludeReferencedProjects option while packaging NuGet artifacts
   verbosity: minimal
 
 # scripts to run before build
@@ -56,6 +56,11 @@ before_build:
 test:
   assemblies:
     - Test\UnitTests\**\UnitTests.dll
+
+nuget:
+    account_feed: true
+    project_feed: true
+    disable_publish_on_pr: true
 
 #---------------------------------#
 #      artifacts configuration    #
@@ -67,9 +72,9 @@ artifacts:
 #---------------------------------#
 #     deployment configuration    #
 #---------------------------------#
-deploy:
-  - provider: NuGet
-    api_key:
-      secure: acA5IpwmiKf6lWbfGhvfZWN4vA7QZtz4sp5Mr99vtrYPzFJcecMCoP5CEDm27N2c
-    skip_symbols: false
-    artifact: /.*\.nupkg/
+# deploy:
+#   - provider: NuGet
+#     api_key:
+#       secure: acA5IpwmiKf6lWbfGhvfZWN4vA7QZtz4sp5Mr99vtrYPzFJcecMCoP5CEDm27N2c
+#     skip_symbols: false
+#     artifact: /.*\.nupkg/
