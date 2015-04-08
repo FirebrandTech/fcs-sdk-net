@@ -231,9 +231,8 @@ namespace Fcs {
         }
 
         private string GetAuthedUser() {
-            if (!string.IsNullOrWhiteSpace(_user)) return _user;
             var cookie = this.Context.GetRequestCookie(this._userCookie);
-            if (cookie == null) return null;
+            if (cookie == null) return _user;
             _user = cookie.Value;
             return _user;
         }
