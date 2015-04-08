@@ -68,6 +68,11 @@ namespace Fcs {
             this.ServiceClientFactory = new JsonServiceClientFactory();
         }
 
+        public static void Reset() {
+            _sharedToken = null;
+            _sharedTokenExpires = null;
+        }
+
         public static void StartSession() {
             using (var fcs = new FcsClient()) {
                 fcs.Auth();

@@ -26,6 +26,7 @@ namespace UnitTests {
         public FcsClientTests() {
             this._expiration = DateTime.UtcNow.AddDays(1);
             this._expiration2 = DateTime.UtcNow.AddDays(2);
+            FcsClient.Reset();
         }
 
         [Fact]
