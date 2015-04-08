@@ -27,6 +27,8 @@ namespace Fcs {
         private IContext _context;
         private string _token;
         private DateTime? _tokenExpires;
+        private static string _sharedToken;
+        private static DateTime? _sharedTokenExpires;
         private string _user;
 
         public FcsClient() {
@@ -144,6 +146,8 @@ namespace Fcs {
 
                 this._token = auth.Token;
                 this._tokenExpires = auth.Expires;
+                _sharedToken = this._token;
+                _sharedTokenExpires = this._tokenExpires;
                 this._user = request.UserName;
                 this.Context.SetResponseCookie(this._tokenCookie, auth.Token, auth.Expires ?? DateTime.MinValue);
                 if (!StringExtensions.IsNullOrEmpty(this._user)) this.Context.SetResponseCookie(this._userCookie, this._user, auth.Expires ?? DateTime.MinValue);
@@ -198,6 +202,11 @@ namespace Fcs {
 
         private string GetValidToken() {
             if (this.TokenIsValid()) return this._token;
+
+            this._token = _sharedToken;
+            this._tokenExpires = _sharedTokenExpires;
+            if (this.TokenIsValid()) return this._token;
+
             var cookie = this.Context.GetRequestCookie(this._tokenCookie);
             if (cookie == null) return null;
             this._token = cookie.Value;
