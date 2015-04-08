@@ -2,13 +2,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Web;
 using Cloud.Api.V2.Model;
 using Fcs.Framework;
 using Fcs.Model;
 using ServiceStack.Logging;
-using ServiceStack.Text;
-using ServiceStack.Text.Json;
 using StringExtensions = ServiceStack.StringExtensions;
 
 namespace Fcs {
@@ -18,19 +17,38 @@ namespace Fcs {
         private static readonly object Sync = new object();
 
         private const string AppHeader = "X-Fcs-App";
-        private readonly string _apiUrl;
-        private readonly string _appId;
-        private readonly string _clientId;
-        private readonly string _clientSecret;
-        private readonly string _tokenCookie;
-        private readonly string _userCookie;
+        private string _apiUrl;
+        private string _appId;
+        private string _clientId;
+        private string _clientSecret;
+        private string _tokenCookie;
+        private string _userCookie;
         private IServiceClient _client;
         private IContext _context;
         private string _token;
         private DateTime? _tokenExpires;
         private string _user;
 
+        public FcsClient() {
+            var settings = ConfigurationManager.AppSettings;
+            var clientId = settings["FcsClientId"];
+            var clientSecret = settings["FcsClientSecret"];
+            var appId = settings["FcsAppId"];
+            var url = settings["FcsApiUrl"];
+
+            if (string.IsNullOrWhiteSpace(clientId) ||
+                string.IsNullOrWhiteSpace(clientSecret) ||
+                string.IsNullOrWhiteSpace(appId)) {
+                throw new InvalidOperationException("FcsClient is not configured properly!  Please add the following to your appSettings: FcsClientId, FcsClientSecret, FcsAppId");
+            }
+            this.Init(clientId, clientSecret, appId, url);
+        }
+
         public FcsClient(string clientId, string clientSecret, string appId = "fcs", string apiUrl = null) {
+            this.Init(clientId, clientSecret, appId, apiUrl);
+        }
+
+        private void Init(string clientId, string clientSecret, string appId, string apiUrl) {
             if (apiUrl != null && apiUrl.ToLower() == "auto") {
                 var req = HttpContext.Current.Request;
                 if (req.ApplicationPath == null) return;
@@ -42,10 +60,16 @@ namespace Fcs {
             this._apiUrl = apiUrl ?? "https://cloud.firebrandtech.com/api/v2";
             this._clientId = clientId;
             this._clientSecret = clientSecret;
-            this._appId = appId;
+            this._appId = appId ?? "fcs";
             this._tokenCookie = appId + "-token";
             this._userCookie = appId + "-user";
             this.ServiceClientFactory = new JsonServiceClientFactory();
+        }
+
+        public static void StartSession() {
+            using (var fcs = new FcsClient()) {
+                fcs.Auth();
+            }
         }
 
         public static ILogFactory LogFactory {
@@ -86,7 +110,7 @@ namespace Fcs {
         }
 
         protected virtual void Dispose(bool disposing) {
-            if (this._client == null) return;
+            if (this._client == null || !disposing) return;
             this._client.Dispose();
             this._client = null;
         }
