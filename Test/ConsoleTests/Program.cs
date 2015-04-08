@@ -9,9 +9,9 @@ namespace ConsoleTests {
     public static class Program {
         public static void Main(string[] args) {
             try {
-                var clientId = Environment.GetEnvironmentVariable("FcsSdk_ClientId");
-                var clientSecret = Environment.GetEnvironmentVariable("FcsSdk_ClientSecret");
-                const string appId = "ConsoleTest";
+                var clientId = Environment.GetEnvironmentVariable("FcsClientId");
+                var clientSecret = Environment.GetEnvironmentVariable("FcsClientSecret");
+                var appId = Environment.GetEnvironmentVariable("FcsAppId");
                 FcsClient.LogFactory = new NLogFactory();
 
                 using (var client = new FcsClient(clientId, clientSecret, appId, "http://cloud.local/api/v2")) {

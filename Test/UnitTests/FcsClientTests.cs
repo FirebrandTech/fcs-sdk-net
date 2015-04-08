@@ -52,8 +52,8 @@ namespace UnitTests {
                       };
             fcs.Auth();
 
-            fcs.Token.Should().Be(Token);
-            fcs.TokenExpires.Should().Be(this._expiration);
+            FcsClient.Token.Should().Be(Token);
+            FcsClient.TokenExpires.Should().Be(this._expiration);
 
             A.CallTo(() => client.Post(A<AuthRequest>.That.Matches(r => r.ClientId == ClientId &&
                                                                         r.ClientSecret == ClientSecret &&
@@ -94,8 +94,8 @@ namespace UnitTests {
 
             fcs.Auth();
 
-            fcs.Token.Should().Be(Token);
-            fcs.TokenExpires.Should().Be(this._expiration);
+            FcsClient.Token.Should().Be(Token);
+            FcsClient.TokenExpires.Should().Be(this._expiration);
 
             A.CallTo(() => client.Post(A<AuthRequest>.That.Matches(r => r.ClientId == ClientId &&
                                                                         r.ClientSecret == ClientSecret &&
@@ -135,9 +135,9 @@ namespace UnitTests {
                       };
             fcs.Auth("testuser");
 
-            fcs.Token.Should().Be(Token);
-            fcs.TokenExpires.Should().Be(this._expiration);
-            fcs.User.Should().Be("testuser");
+            FcsClient.Token.Should().Be(Token);
+            FcsClient.TokenExpires.Should().Be(this._expiration);
+            FcsClient.User.Should().Be("testuser");
 
             A.CallTo(() => client.Post(A<AuthRequest>.That.Matches(r => r.ClientId == ClientId &&
                                                                         r.ClientSecret == ClientSecret &&
@@ -191,9 +191,9 @@ namespace UnitTests {
 
                 fcs.Auth("testuser");
 
-                fcs.Token.Should().Be(Token2);
-                fcs.TokenExpires.Should().Be(this._expiration2);
-                fcs.User.Should().Be("testuser");
+                FcsClient.Token.Should().Be(Token2);
+                FcsClient.TokenExpires.Should().Be(this._expiration2);
+                FcsClient.User.Should().Be("testuser");
 
                 A.CallTo(() => client.Post(A<AuthRequest>.That.Matches(r => r.ClientId == ClientId &&
                                                                             r.ClientSecret == ClientSecret &&
@@ -255,9 +255,9 @@ namespace UnitTests {
 
             fcs.Auth("testuser2");
 
-            fcs.Token.Should().Be(Token2);
-            fcs.TokenExpires.Should().Be(this._expiration2);
-            fcs.User.Should().Be("testuser2");
+            FcsClient.Token.Should().Be(Token2);
+            FcsClient.TokenExpires.Should().Be(this._expiration2);
+            FcsClient.User.Should().Be("testuser2");
 
             A.CallTo(() => client.Post(A<AuthRequest>.That.Matches(r => r.ClientId == ClientId &&
                                                                         r.ClientSecret == ClientSecret &&
@@ -425,9 +425,9 @@ namespace UnitTests {
 
 
             fcs2.PublishCatalog(new Catalog());
-            fcs2.Token.Should().Be(Token);
-            fcs2.TokenExpires.Should().Be(this._expiration);
-            fcs2.User.Should().Be("testuser");
+            FcsClient.Token.Should().Be(Token);
+            FcsClient.TokenExpires.Should().Be(this._expiration);
+            FcsClient.User.Should().Be("testuser");
 
             A.CallTo(() => client.Post(A<Catalog>._,
                                        A<Dictionary<string, string>>.That.Matches(h => h["X-Fcs-App"] == AppId &&
@@ -496,9 +496,9 @@ namespace UnitTests {
              .MustHaveHappened(Repeated.Exactly.Once);
 
             fcs2.PublishCatalog(new Catalog());
-            fcs2.Token.Should().Be(Token2);
-            fcs2.TokenExpires.Should().Be(this._expiration2);
-            fcs2.User.Should().Be("testuser");
+            FcsClient.Token.Should().Be(Token2);
+            FcsClient.TokenExpires.Should().Be(this._expiration2);
+            FcsClient.User.Should().Be("testuser");
 
             A.CallTo(() => client.Post(A<Catalog>._,
                                        A<Dictionary<string, string>>.That.Matches(h => h["X-Fcs-App"] == AppId &&
@@ -562,9 +562,9 @@ namespace UnitTests {
              .MustHaveHappened(Repeated.Exactly.Once);
 
             fcs2.PublishCatalog(new Catalog());
-            fcs2.Token.Should().Be(Token2);
-            fcs2.TokenExpires.Should().Be(this._expiration2);
-            fcs2.User.Should().Be("testuser2");
+            FcsClient.Token.Should().Be(Token2);
+            FcsClient.TokenExpires.Should().Be(this._expiration2);
+            FcsClient.User.Should().Be("testuser2");
 
             A.CallTo(() => client.Post(A<Catalog>._,
                                        A<Dictionary<string, string>>.That.Matches(h => h["X-Fcs-App"] == AppId &&

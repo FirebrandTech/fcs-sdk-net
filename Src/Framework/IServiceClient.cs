@@ -25,7 +25,12 @@ namespace Fcs.Framework {
         private readonly ServiceStack.JsonServiceClient _client;
 
         public JsonServiceClient(string url) {
-            this._client = new ServiceStack.JsonServiceClient(url);
+            this._client = new ServiceStack.JsonServiceClient(url)
+                           {
+                               AllowAutoRedirect = false, 
+                               StoreCookies = false,
+                               CookieContainer = null
+                           };
         }
 
         public TResponse Post<TResponse>(IReturn<TResponse> request, Dictionary<string, string> headers) {

@@ -2,8 +2,6 @@
 
 using System;
 using System.Web;
-using System.Web.Security;
-using ServiceStack;
 using ServiceStack.Logging;
 
 namespace Fcs.Framework {
@@ -33,25 +31,38 @@ namespace Fcs.Framework {
 
         public void SetResponseCookie(string name, string value, DateTime expires) {
             if (HttpContext.Current == null) return;
-            var cookies = HttpContext.Current.Response.Cookies;
-            value = HttpUtility.UrlEncode(value);
-            var cookie = new HttpCookie(name) {
-                Value = value,
-                Path = FormsAuthentication.FormsCookiePath,
-                HttpOnly = false,
-                Secure = FormsAuthentication.RequireSSL,
-                Expires = expires
-            };
+            //var cookies = HttpContext.Current.Response.Cookies;
+            var res = HttpContext.Current.Response;
+            //var req = HttpContext.Current.Request;
+            //var cookies = res.Cookies;
+            //if (req.Cookies[name] != null) req.Cookies.Remove(name);
+            //value = HttpUtility.UrlEncode(value);
+            var cookie = new HttpCookie(name, value);
+                         //{
+                         //    Value = value,
+                         //    Path = "/",
+                         //    HttpOnly = true,
+                         //    Secure = false,
+                         //    Domain = "localhost",
+                         //    Expires = expires
+                         //};
 
-            if (!string.IsNullOrWhiteSpace(FormsAuthentication.CookieDomain)) {
-                cookie.Domain = FormsAuthentication.CookieDomain;
-            }
+            //if (!string.IsNullOrWhiteSpace(FormsAuthentication.CookieDomain)) {
+            //    cookie.Domain = FormsAuthentication.CookieDomain;
+            //}
 
-            Logger.DebugFormat("SET COOKIE: Name={0}, Value={1}, Path={2}, Expires={3}, Domain={4}",
-                               cookie.Name, cookie.Value, cookie.Path, cookie.Expires, cookie.Domain);
+            //Logger.DebugFormat("RESPONSE: mycookie1={0}", (cookies["mycookie1"] ?? new HttpCookie("")).Value);
+            //Logger.DebugFormat("RESPONSE: mit-token={0}", (cookies["mit-token"] ?? new HttpCookie("")).Value);
+            //Logger.DebugFormat("REQUEST: mit-token={0}", (req.Cookies["mit-token"] ?? new HttpCookie("")).Value);
+            //Logger.DebugFormat("SET COOKIE: Name={0}, Value={1}, Path={2}, Expires={3}, Domain={4}",
+            //                   cookie.Name, cookie.Value, cookie.Path, cookie.Expires, cookie.Domain);
 
-            if (cookies.Get(name) != null) cookies.Remove(name);
-            cookies.Add(cookie);
+            
+
+            //if (cookies.Get(name) != null) cookies.Remove(name);
+            //cookies.Remove(name);
+            //cookies.Add(cookie);
+            res.SetCookie(cookie);
         }
     }
 }
