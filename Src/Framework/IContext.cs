@@ -3,6 +3,8 @@
 using System;
 using System.Web;
 using System.Web.Security;
+using ServiceStack;
+using ServiceStack.Logging;
 
 namespace Fcs.Framework {
     public interface IContext {
@@ -12,6 +14,8 @@ namespace Fcs.Framework {
     }
 
     public class AspNetContext : IContext {
+        private static readonly ILog Logger = LogManager.GetLogger("FcsClient");
+
         public string CurrentUserName {
             get {
                 if (HttpContext.Current == null) return null;
@@ -42,7 +46,9 @@ namespace Fcs.Framework {
             if (!string.IsNullOrWhiteSpace(FormsAuthentication.CookieDomain)) {
                 cookie.Domain = FormsAuthentication.CookieDomain;
             }
-            cookies.Remove(name);
+
+            Logger.DebugFormat("SET COOKIE: {0}", cookie.ToJsv());
+            if (cookies.Get(name) != null) cookies.Remove(name);
             cookies.Add(cookie);
         }
     }
