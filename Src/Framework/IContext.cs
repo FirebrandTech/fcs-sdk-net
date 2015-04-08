@@ -14,7 +14,7 @@ namespace Fcs.Framework {
     }
 
     public class AspNetContext : IContext {
-        private static readonly ILog Logger = LogManager.GetLogger("FcsClient");
+        private static readonly ILog Logger = LogManager.GetLogger("FcsClient.Context");
 
         public string CurrentUserName {
             get {
@@ -47,7 +47,9 @@ namespace Fcs.Framework {
                 cookie.Domain = FormsAuthentication.CookieDomain;
             }
 
-            Logger.DebugFormat("SET COOKIE: {0}", cookie.ToJsv());
+            Logger.DebugFormat("SET COOKIE: Name={0}, Value={1}, Path={2}, Expires={3}, Domain={4}",
+                               cookie.Name, cookie.Value, cookie.Path, cookie.Expires, cookie.Domain);
+
             if (cookies.Get(name) != null) cookies.Remove(name);
             cookies.Add(cookie);
         }
