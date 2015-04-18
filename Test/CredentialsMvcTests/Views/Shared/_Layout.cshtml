@@ -1,0 +1,74 @@
+﻿@* ReSharper disable Html.TagNotResolved *@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - My ASP.NET Application</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+
+    <link href="//cloud.local/widgets/content/bootstrap.css" rel="stylesheet">
+    <link href="//cloud.local/widgets/content/widgets.css" rel="stylesheet">
+
+</head>
+<body ng-app="widgets" fc-app="@Environment.GetEnvironmentVariable("FcsAppId")">
+    <div class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                @Html.ActionLink("Application name", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li>@Html.ActionLink("Home", "Index", "Home")</li>
+                    <li>@Html.ActionLink("About", "About", "Home")</li>
+                    <li>@Html.ActionLink("Contact", "Contact", "Home")</li>
+                </ul>
+                <fc-me layout="right"></fc-me>
+            </div>
+        </div>
+    </div>
+    <div class="container body-content">
+        @RenderBody()
+        <hr />
+        <footer>
+            <p>&copy; @DateTime.Now.Year - My ASP.NET Application</p>
+        </footer>
+    </div>
+
+    <script src="//cloud.local/widgets/scripts/angular.js"> </script>
+    <script src="//cloud.local/widgets/scripts/angular-ui/ui-bootstrap-tpls.js"> </script>
+    <script src="//cloud.local/widgets/scripts/widgets/angular-tablesort.js"></script>
+    <script src="//cloud.local/widgets/scripts/widgets/1init.js"> </script>
+    <script src="//cloud.local/widgets/scripts/widgets/1widget.js"> </script>
+    <script src="//cloud.local/widgets/scripts/widgets/addtocart.js"> </script>
+    <script src="//cloud.local/widgets/scripts/widgets/cart.js"> </script>
+    <script src="//cloud.local/widgets/scripts/widgets/cartbadge.js"> </script>
+    <script src="//cloud.local/widgets/scripts/widgets/library.js"> </script>
+    <script src="//cloud.local/widgets/scripts/widgets/login.js"> </script>
+    <script src="//cloud.local/widgets/scripts/widgets/me.js"> </script>
+    <script src="//cloud.local/widgets/scripts/widgets/msgbox.js"></script>
+    <script src="//cloud.local/widgets/scripts/widgets/orders.js"></script>
+    <script src="//cloud.local/widgets/scripts/widgets/user.js"></script>
+    <script src="//cloud.local/widgets/scripts/widgets/users.js"> </script>
+    <script src="//cloud.local/widgets/scripts/widgets/widgets.tmpl.js"> </script>
+    <script src="//cloud.local/widgets/scripts/widgets/catalogproduct.js"> </script>
+    <script src="//cloud.local/widgets/scripts/widgets/catalogproducts.js"> </script>
+    <script src="//cloud.local/widgets/scripts/widgets/catalog.js"> </script>
+    <script src="//cloud.local/widgets/scripts/widgets/blogfeed.js"> </script>
+    <script src="//cloud.local/widgets/scripts/widgets/paging.js"> </script>
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @RenderSection("scripts", required: false)
+
+
+</body>
+</html>
+@* ReSharper restore Html.TagNotResolved *@
+

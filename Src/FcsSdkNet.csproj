@@ -77,6 +77,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FcsClient.cs" />
+    <Compile Include="FcsConfig.cs" />
+    <Compile Include="FcsToken.cs" />
+    <Compile Include="Framework\FrameworkExtensions.cs" />
     <Compile Include="Framework\IContext.cs" />
     <Compile Include="Framework\IServiceClient.cs" />
     <Compile Include="Model\Auth.cs" />

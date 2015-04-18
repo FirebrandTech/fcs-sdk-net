@@ -2,11 +2,17 @@
 
 using System;
 using System.Web;
+using System.Web.Caching;
+using System.Web.Security;
 using ServiceStack.Logging;
 
 namespace Fcs.Framework {
     public interface IContext {
         string CurrentUserName { get; }
+        object GetSessionItem(string key);
+        void SetSessionItem(string key, object item);
+        void SetCacheItem(string key, object item, DateTime expiration);
+        object GetCacheItem(string key);
         HttpCookie GetRequestCookie(string name);
         void SetResponseCookie(string name, string value, DateTime expires);
     }
@@ -14,13 +20,46 @@ namespace Fcs.Framework {
     public class AspNetContext : IContext {
         private static readonly ILog Logger = LogManager.GetLogger("FcsClient.Context");
 
+        //public string ClientAddress {
+        //    get {
+        //        if (HttpContext.Current == null) return null;
+        //        if (HttpContext.Current.User.Identity == null) return null;
+        //        return HttpContext.Current.Request.                
+        //    }
+        //}
         public string CurrentUserName {
             get {
                 if (HttpContext.Current == null) return null;
                 if (HttpContext.Current.User == null) return null;
                 if (HttpContext.Current.User.Identity == null) return null;
-                return HttpContext.Current.User.Identity.Name;
+                return string.IsNullOrWhiteSpace(HttpContext.Current.User.Identity.Name)
+                           ? null
+                           : HttpContext.Current.User.Identity.Name;
             }
+        }
+
+        public object GetSessionItem(string key) {
+            if (HttpContext.Current == null) return null;
+            if (HttpContext.Current.Session == null) return null;
+            return HttpContext.Current.Session[key];
+        }
+
+        public void SetSessionItem(string key, object item) {
+            if (HttpContext.Current == null) return;
+            if (HttpContext.Current.Session == null) return;
+            HttpContext.Current.Session[key] = item;
+        }
+
+        public object GetCacheItem(string key) {
+            if (HttpContext.Current == null) return null;
+            if (HttpContext.Current.Cache == null) return null;
+            return HttpContext.Current.Cache[key];
+        }
+
+        public void SetCacheItem(string key, object item, DateTime expiration) {
+            if (HttpContext.Current == null) return;
+            if (HttpContext.Current.Cache == null) return;
+            HttpContext.Current.Cache.Insert(key, item, null, expiration, Cache.NoSlidingExpiration);
         }
 
         public HttpCookie GetRequestCookie(string name) {
@@ -31,37 +70,18 @@ namespace Fcs.Framework {
 
         public void SetResponseCookie(string name, string value, DateTime expires) {
             if (HttpContext.Current == null) return;
-            //var cookies = HttpContext.Current.Response.Cookies;
             var res = HttpContext.Current.Response;
-            //var req = HttpContext.Current.Request;
-            //var cookies = res.Cookies;
-            //if (req.Cookies[name] != null) req.Cookies.Remove(name);
-            //value = HttpUtility.UrlEncode(value);
-            var cookie = new HttpCookie(name, value);
-                         //{
-                         //    Value = value,
-                         //    Path = "/",
-                         //    HttpOnly = true,
-                         //    Secure = false,
-                         //    Domain = "localhost",
-                         //    Expires = expires
-                         //};
+            var cookie = new HttpCookie(name, value)
+                         {
+                             Value = value,
+                             Path = "/",
+                             HttpOnly = false,
+                             Expires = expires
+                         };
 
-            //if (!string.IsNullOrWhiteSpace(FormsAuthentication.CookieDomain)) {
-            //    cookie.Domain = FormsAuthentication.CookieDomain;
-            //}
-
-            //Logger.DebugFormat("RESPONSE: mycookie1={0}", (cookies["mycookie1"] ?? new HttpCookie("")).Value);
-            //Logger.DebugFormat("RESPONSE: mit-token={0}", (cookies["mit-token"] ?? new HttpCookie("")).Value);
-            //Logger.DebugFormat("REQUEST: mit-token={0}", (req.Cookies["mit-token"] ?? new HttpCookie("")).Value);
-            //Logger.DebugFormat("SET COOKIE: Name={0}, Value={1}, Path={2}, Expires={3}, Domain={4}",
-            //                   cookie.Name, cookie.Value, cookie.Path, cookie.Expires, cookie.Domain);
-
-            
-
-            //if (cookies.Get(name) != null) cookies.Remove(name);
-            //cookies.Remove(name);
-            //cookies.Add(cookie);
+            if (!string.IsNullOrWhiteSpace(FormsAuthentication.CookieDomain)) {
+                cookie.Domain = FormsAuthentication.CookieDomain;
+            }
             res.SetCookie(cookie);
         }
     }

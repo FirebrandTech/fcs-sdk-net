@@ -1,7 +1,6 @@
 ﻿// Copyright © 2010-2015 Firebrand Technologies
 
 using System;
-using System.Collections.Generic;
 using System.Web;
 using FakeItEasy;
 using Fcs;
@@ -35,7 +34,7 @@ namespace UnitTests {
             A.CallTo(() => context.CurrentUserName).Returns(null);
 
             var client = A.Fake<IServiceClient>();
-            A.CallTo(() => client.Post(A<AuthRequest>._, A<Dictionary<string, string>>._))
+            A.CallTo(() => client.Post(A<AuthRequest>._, A<Headers>._, A<Headers>._))
              .Returns(new AuthResponse
                       {
                           Token = Token,
@@ -52,20 +51,22 @@ namespace UnitTests {
                       };
             fcs.Auth();
 
-            FcsClient.Token.Should().Be(Token);
-            FcsClient.TokenExpires.Should().Be(this._expiration);
+            fcs.Token.Value.Should().Be(Token);
+            fcs.Token.Expires.Should().Be(this._expiration);
 
             A.CallTo(() => client.Post(A<AuthRequest>.That.Matches(r => r.ClientId == ClientId &&
                                                                         r.ClientSecret == ClientSecret &&
                                                                         r.UserName == null),
-                                       A<Dictionary<string, string>>.That.Matches(h => h["X-Fcs-App"] == AppId)))
+                                       A<Headers>.That.Matches(h => h["X-Fcs-App"] == AppId),
+                                       A<Headers>._))
              .MustHaveHappened(Repeated.Exactly.Once);
 
             fcs.PublishCatalog(new Catalog());
 
             A.CallTo(() => client.Post(A<Catalog>._,
-                                       A<Dictionary<string, string>>.That.Matches(h => h["X-Fcs-App"] == AppId &&
-                                                                                       h["Authorization"] == "Bearer " + Token)))
+                                       A<Headers>.That.Matches(h => h["X-Fcs-App"] == AppId &&
+                                                                    h["Authorization"] == "Bearer " + Token),
+                                       A<Headers>._))
              .MustHaveHappened(Repeated.Exactly.Once);
         }
 
@@ -75,7 +76,7 @@ namespace UnitTests {
             A.CallTo(() => context.CurrentUserName).Returns(null);
 
             var client = A.Fake<IServiceClient>();
-            A.CallTo(() => client.Post(A<AuthRequest>._, A<Dictionary<string, string>>._))
+            A.CallTo(() => client.Post(A<AuthRequest>._, A<Headers>._, A<Headers>._))
              .Returns(new AuthResponse
                       {
                           Token = Token,
@@ -94,20 +95,22 @@ namespace UnitTests {
 
             fcs.Auth();
 
-            FcsClient.Token.Should().Be(Token);
-            FcsClient.TokenExpires.Should().Be(this._expiration);
+            fcs.Token.Value.Should().Be(Token);
+            fcs.Token.Expires.Should().Be(this._expiration);
 
             A.CallTo(() => client.Post(A<AuthRequest>.That.Matches(r => r.ClientId == ClientId &&
                                                                         r.ClientSecret == ClientSecret &&
                                                                         r.UserName == null),
-                                       A<Dictionary<string, string>>.That.Matches(h => h["X-Fcs-App"] == AppId)))
+                                       A<Headers>.That.Matches(h => h["X-Fcs-App"] == AppId),
+                                       A<Headers>._))
              .MustHaveHappened(Repeated.Exactly.Once);
 
             fcs.PublishCatalog(new Catalog());
 
             A.CallTo(() => client.Post(A<Catalog>._,
-                                       A<Dictionary<string, string>>.That.Matches(h => h["X-Fcs-App"] == AppId &&
-                                                                                       h["Authorization"] == "Bearer " + Token)))
+                                       A<Headers>.That.Matches(h => h["X-Fcs-App"] == AppId &&
+                                                                    h["Authorization"] == "Bearer " + Token),
+                                       A<Headers>._))
              .MustHaveHappened(Repeated.Exactly.Once);
             fcs.Auth();
         }
@@ -118,7 +121,7 @@ namespace UnitTests {
             A.CallTo(() => context.CurrentUserName).Returns(null);
 
             var client = A.Fake<IServiceClient>();
-            A.CallTo(() => client.Post(A<AuthRequest>._, A<Dictionary<string, string>>._))
+            A.CallTo(() => client.Post(A<AuthRequest>._, A<Headers>._, A<Headers>._))
              .Returns(new AuthResponse
                       {
                           Token = Token,
@@ -135,21 +138,23 @@ namespace UnitTests {
                       };
             fcs.Auth("testuser");
 
-            FcsClient.Token.Should().Be(Token);
-            FcsClient.TokenExpires.Should().Be(this._expiration);
-            FcsClient.User.Should().Be("testuser");
+            fcs.Token.Value.Should().Be(Token);
+            fcs.Token.Expires.Should().Be(this._expiration);
+            fcs.Token.User.Should().Be("testuser");
 
             A.CallTo(() => client.Post(A<AuthRequest>.That.Matches(r => r.ClientId == ClientId &&
                                                                         r.ClientSecret == ClientSecret &&
                                                                         r.UserName == "testuser"),
-                                       A<Dictionary<string, string>>.That.Matches(h => h["X-Fcs-App"] == AppId)))
+                                       A<Headers>.That.Matches(h => h["X-Fcs-App"] == AppId),
+                                       A<Headers>._))
              .MustHaveHappened(Repeated.Exactly.Once);
 
             fcs.PublishCatalog(new Catalog());
 
             A.CallTo(() => client.Post(A<Catalog>._,
-                                       A<Dictionary<string, string>>.That.Matches(h => h["X-Fcs-App"] == AppId &&
-                                                                                       h["Authorization"] == "Bearer " + Token)))
+                                       A<Headers>.That.Matches(h => h["X-Fcs-App"] == AppId &&
+                                                                    h["Authorization"] == "Bearer " + Token),
+                                       A<Headers>._))
              .MustHaveHappened(Repeated.Exactly.Once);
         }
 
@@ -162,7 +167,8 @@ namespace UnitTests {
             A.CallTo(() => client.Post(A<AuthRequest>.That.Matches(r => r.ClientId == ClientId &&
                                                                         r.ClientSecret == ClientSecret &&
                                                                         r.UserName == null),
-                                       A<Dictionary<string, string>>._))
+                                       A<Headers>._,
+                                       A<Headers>._))
              .Returns(new AuthResponse
                       {
                           Token = Token,
@@ -171,7 +177,8 @@ namespace UnitTests {
             A.CallTo(() => client.Post(A<AuthRequest>.That.Matches(r => r.ClientId == null &&
                                                                         r.ClientSecret == null &&
                                                                         r.UserName != null),
-                                       A<Dictionary<string, string>>._))
+                                       A<Headers>._,
+                                       A<Headers>._))
              .Returns(new AuthResponse
                       {
                           Token = Token2,
@@ -191,28 +198,31 @@ namespace UnitTests {
 
                 fcs.Auth("testuser");
 
-                FcsClient.Token.Should().Be(Token2);
-                FcsClient.TokenExpires.Should().Be(this._expiration2);
-                FcsClient.User.Should().Be("testuser");
+                fcs.Token.Value.Should().Be(Token2);
+                fcs.Token.Expires.Should().Be(this._expiration2);
+                fcs.Token.User.Should().Be("testuser");
 
                 A.CallTo(() => client.Post(A<AuthRequest>.That.Matches(r => r.ClientId == ClientId &&
                                                                             r.ClientSecret == ClientSecret &&
                                                                             r.UserName == null),
-                                           A<Dictionary<string, string>>.That.Matches(h => h["X-Fcs-App"] == AppId)))
+                                           A<Headers>.That.Matches(h => h["X-Fcs-App"] == AppId),
+                                           A<Headers>._))
                  .MustHaveHappened(Repeated.Exactly.Once);
 
                 A.CallTo(() => client.Post(A<AuthRequest>.That.Matches(r => r.ClientId == null &&
                                                                             r.ClientSecret == null &&
                                                                             r.UserName == "testuser"),
-                                           A<Dictionary<string, string>>.That.Matches(h => h["X-Fcs-App"] == AppId &&
-                                                                                           h["Authorization"] == "Bearer " + Token)))
+                                           A<Headers>.That.Matches(h => h["X-Fcs-App"] == AppId &&
+                                                                        h["Authorization"] == "Bearer " + Token),
+                                           A<Headers>._))
                  .MustHaveHappened(Repeated.Exactly.Once);
 
                 fcs.PublishCatalog(new Catalog());
 
                 A.CallTo(() => client.Post(A<Catalog>._,
-                                           A<Dictionary<string, string>>.That.Matches(h => h["X-Fcs-App"] == AppId &&
-                                                                                           h["Authorization"] == "Bearer " + Token2)))
+                                           A<Headers>.That.Matches(h => h["X-Fcs-App"] == AppId &&
+                                                                        h["Authorization"] == "Bearer " + Token2),
+                                           A<Headers>._))
                  .MustHaveHappened(Repeated.Exactly.Once);
             }
         }
@@ -226,7 +236,8 @@ namespace UnitTests {
             A.CallTo(() => client.Post(A<AuthRequest>.That.Matches(r => r.ClientId == ClientId &&
                                                                         r.ClientSecret == ClientSecret &&
                                                                         r.UserName != null),
-                                       A<Dictionary<string, string>>._))
+                                       A<Headers>._,
+                                       A<Headers>._))
              .Returns(new AuthResponse
                       {
                           Token = Token,
@@ -235,7 +246,8 @@ namespace UnitTests {
             A.CallTo(() => client.Post(A<AuthRequest>.That.Matches(r => r.ClientId == null &&
                                                                         r.ClientSecret == null &&
                                                                         r.UserName != null),
-                                       A<Dictionary<string, string>>._))
+                                       A<Headers>._,
+                                       A<Headers>._))
              .Returns(new AuthResponse
                       {
                           Token = Token2,
@@ -255,28 +267,31 @@ namespace UnitTests {
 
             fcs.Auth("testuser2");
 
-            FcsClient.Token.Should().Be(Token2);
-            FcsClient.TokenExpires.Should().Be(this._expiration2);
-            FcsClient.User.Should().Be("testuser2");
+            fcs.Token.Value.Should().Be(Token2);
+            fcs.Token.Expires.Should().Be(this._expiration2);
+            fcs.Token.User.Should().Be("testuser2");
 
             A.CallTo(() => client.Post(A<AuthRequest>.That.Matches(r => r.ClientId == ClientId &&
                                                                         r.ClientSecret == ClientSecret &&
                                                                         r.UserName == "testuser1"),
-                                       A<Dictionary<string, string>>.That.Matches(h => h["X-Fcs-App"] == AppId)))
+                                       A<Headers>.That.Matches(h => h["X-Fcs-App"] == AppId),
+                                       A<Headers>._))
              .MustHaveHappened(Repeated.Exactly.Once);
 
             A.CallTo(() => client.Post(A<AuthRequest>.That.Matches(r => r.ClientId == null &&
                                                                         r.ClientSecret == null &&
                                                                         r.UserName == "testuser2"),
-                                       A<Dictionary<string, string>>.That.Matches(h => h["X-Fcs-App"] == AppId &&
-                                                                                       h["Authorization"] == "Bearer " + Token)))
+                                       A<Headers>.That.Matches(h => h["X-Fcs-App"] == AppId &&
+                                                                    h["Authorization"] == "Bearer " + Token),
+                                       A<Headers>._))
              .MustHaveHappened(Repeated.Exactly.Once);
 
             fcs.PublishCatalog(new Catalog());
 
             A.CallTo(() => client.Post(A<Catalog>._,
-                                       A<Dictionary<string, string>>.That.Matches(h => h["X-Fcs-App"] == AppId &&
-                                                                                       h["Authorization"] == "Bearer " + Token2)))
+                                       A<Headers>.That.Matches(h => h["X-Fcs-App"] == AppId &&
+                                                                    h["Authorization"] == "Bearer " + Token2),
+                                       A<Headers>._))
              .MustHaveHappened(Repeated.Exactly.Once);
         }
 
@@ -286,7 +301,7 @@ namespace UnitTests {
             A.CallTo(() => context.CurrentUserName).Returns(null);
 
             var client = A.Fake<IServiceClient>();
-            A.CallTo(() => client.Post(A<AuthRequest>._, A<Dictionary<string, string>>._))
+            A.CallTo(() => client.Post(A<AuthRequest>._, A<Headers>._, A<Headers>._))
              .Returns(new AuthResponse
                       {
                           Token = Token,
@@ -324,8 +339,9 @@ namespace UnitTests {
             fcs2.PublishCatalog(new Catalog());
 
             A.CallTo(() => client.Post(A<Catalog>._,
-                                       A<Dictionary<string, string>>.That.Matches(h => h["X-Fcs-App"] == AppId &&
-                                                                                       h["Authorization"] == "Bearer " + Token)))
+                                       A<Headers>.That.Matches(h => h["X-Fcs-App"] == AppId &&
+                                                                    h["Authorization"] == "Bearer " + Token),
+                                       A<Headers>._))
              .MustHaveHappened(Repeated.Exactly.Once);
         }
 
@@ -335,7 +351,7 @@ namespace UnitTests {
             A.CallTo(() => context.CurrentUserName).Returns(null);
 
             var client = A.Fake<IServiceClient>();
-            A.CallTo(() => client.Post(A<AuthRequest>._, A<Dictionary<string, string>>._))
+            A.CallTo(() => client.Post(A<AuthRequest>._, A<Headers>._, A<Headers>._))
              .Returns(new AuthResponse
                       {
                           Token = Token,
@@ -367,15 +383,15 @@ namespace UnitTests {
                        };
 
 
-            fcs2.Auth();
             fcs2.PublishCatalog(new Catalog());
 
-            A.CallTo(() => context2.SetResponseCookie(A<string>._, A<string>._, A<DateTime>._))
-             .MustNotHaveHappened();
+            //A.CallTo(() => context2.SetResponseCookie(A<string>._, A<string>._, A<DateTime>._))
+            // .MustNotHaveHappened();
 
             A.CallTo(() => client.Post(A<Catalog>._,
-                                       A<Dictionary<string, string>>.That.Matches(h => h["X-Fcs-App"] == AppId &&
-                                                                                       h["Authorization"] == "Bearer " + Token)))
+                                       A<Headers>.That.Matches(h => h["X-Fcs-App"] == AppId &&
+                                                                    h["Authorization"] == "Bearer " + Token),
+                                       A<Headers>._))
              .MustHaveHappened(Repeated.Exactly.Once);
         }
 
@@ -385,7 +401,7 @@ namespace UnitTests {
             A.CallTo(() => context.CurrentUserName).Returns("testuser");
 
             var client = A.Fake<IServiceClient>();
-            A.CallTo(() => client.Post(A<AuthRequest>._, A<Dictionary<string, string>>._))
+            A.CallTo(() => client.Post(A<AuthRequest>._, A<Headers>._, A<Headers>._))
              .Returns(new AuthResponse
                       {
                           Token = Token,
@@ -425,13 +441,14 @@ namespace UnitTests {
 
 
             fcs2.PublishCatalog(new Catalog());
-            FcsClient.Token.Should().Be(Token);
-            FcsClient.TokenExpires.Should().Be(this._expiration);
-            FcsClient.User.Should().Be("testuser");
+            fcs2.Token.Value.Should().Be(Token);
+            fcs2.Token.Expires.Should().Be(this._expiration);
+            fcs2.Token.User.Should().Be("testuser");
 
             A.CallTo(() => client.Post(A<Catalog>._,
-                                       A<Dictionary<string, string>>.That.Matches(h => h["X-Fcs-App"] == AppId &&
-                                                                                       h["Authorization"] == "Bearer " + Token)))
+                                       A<Headers>.That.Matches(h => h["X-Fcs-App"] == AppId &&
+                                                                    h["Authorization"] == "Bearer " + Token),
+                                       A<Headers>._))
              .MustHaveHappened(Repeated.Exactly.Once);
         }
 
@@ -444,7 +461,8 @@ namespace UnitTests {
             A.CallTo(() => client.Post(A<AuthRequest>.That.Matches(r => r.ClientId == ClientId &&
                                                                         r.ClientSecret == ClientSecret &&
                                                                         r.UserName == null),
-                                       A<Dictionary<string, string>>._))
+                                       A<Headers>._,
+                                       A<Headers>._))
              .Returns(new AuthResponse
                       {
                           Token = Token,
@@ -453,7 +471,8 @@ namespace UnitTests {
             A.CallTo(() => client.Post(A<AuthRequest>.That.Matches(r => r.ClientId == null &&
                                                                         r.ClientSecret == null &&
                                                                         r.UserName != null),
-                                       A<Dictionary<string, string>>._))
+                                       A<Headers>._,
+                                       A<Headers>._))
              .Returns(new AuthResponse
                       {
                           Token = Token2,
@@ -489,20 +508,21 @@ namespace UnitTests {
                            ServiceClientFactory = factory
                        };
 
-            fcs2.Auth();
+            //fcs2.Auth();
+            fcs2.PublishCatalog(new Catalog());
             A.CallTo(() => context2.SetResponseCookie(AppId + "-user", "testuser", this._expiration2))
              .MustHaveHappened(Repeated.Exactly.Once);
             A.CallTo(() => context2.SetResponseCookie(AppId + "-token", Token2, this._expiration2))
              .MustHaveHappened(Repeated.Exactly.Once);
 
-            fcs2.PublishCatalog(new Catalog());
-            FcsClient.Token.Should().Be(Token2);
-            FcsClient.TokenExpires.Should().Be(this._expiration2);
-            FcsClient.User.Should().Be("testuser");
+            fcs2.Token.Value.Should().Be(Token2);
+            fcs2.Token.Expires.Should().Be(this._expiration2);
+            fcs2.Token.User.Should().Be("testuser");
 
             A.CallTo(() => client.Post(A<Catalog>._,
-                                       A<Dictionary<string, string>>.That.Matches(h => h["X-Fcs-App"] == AppId &&
-                                                                                       h["Authorization"] == "Bearer " + Token2)))
+                                       A<Headers>.That.Matches(h => h["X-Fcs-App"] == AppId &&
+                                                                    h["Authorization"] == "Bearer " + Token2),
+                                       A<Headers>._))
              .MustHaveHappened(Repeated.Exactly.Once);
         }
 
@@ -515,27 +535,32 @@ namespace UnitTests {
             A.CallTo(() => client.Post(A<AuthRequest>.That.Matches(r => r.ClientId == ClientId &&
                                                                         r.ClientSecret == ClientSecret &&
                                                                         r.UserName != null),
-                                       A<Dictionary<string, string>>._))
-             .Returns(new AuthResponse {
-                 Token = Token,
-                 Expires = this._expiration
-             });
+                                       A<Headers>._,
+                                       A<Headers>._))
+             .Returns(new AuthResponse
+                      {
+                          Token = Token,
+                          Expires = this._expiration
+                      });
             A.CallTo(() => client.Post(A<AuthRequest>.That.Matches(r => r.ClientId == null &&
                                                                         r.ClientSecret == null &&
                                                                         r.UserName != null),
-                                       A<Dictionary<string, string>>._))
-             .Returns(new AuthResponse {
-                 Token = Token2,
-                 Expires = this._expiration2
-             });
+                                       A<Headers>._,
+                                       A<Headers>._))
+             .Returns(new AuthResponse
+                      {
+                          Token = Token2,
+                          Expires = this._expiration2
+                      });
             var factory = A.Fake<IServiceClientFactory>();
             A.CallTo(() => factory.CreateClient(A<string>._))
              .Returns(client);
 
-            var fcs = new FcsClient(ClientId, ClientSecret, AppId) {
-                Context = context,
-                ServiceClientFactory = factory
-            };
+            var fcs = new FcsClient(ClientId, ClientSecret, AppId)
+                      {
+                          Context = context,
+                          ServiceClientFactory = factory
+                      };
             fcs.Auth();
 
             A.CallTo(() => context.SetResponseCookie(AppId + "-token", Token, this._expiration))
@@ -544,16 +569,18 @@ namespace UnitTests {
             var context2 = A.Fake<IContext>();
             A.CallTo(() => context2.CurrentUserName).Returns("testuser2");
             A.CallTo(() => context2.GetRequestCookie(AppId + "-token"))
-             .Returns(new HttpCookie(AppId + "-token", Token) {
-                 Expires = this._expiration
-             });
+             .Returns(new HttpCookie(AppId + "-token", Token)
+                      {
+                          Expires = this._expiration
+                      });
             A.CallTo(() => context2.GetRequestCookie(AppId + "-user"))
              .Returns(null);
 
-            var fcs2 = new FcsClient(ClientId, ClientSecret, AppId) {
-                Context = context2,
-                ServiceClientFactory = factory
-            };
+            var fcs2 = new FcsClient(ClientId, ClientSecret, AppId)
+                       {
+                           Context = context2,
+                           ServiceClientFactory = factory
+                       };
 
             fcs2.Auth();
             A.CallTo(() => context2.SetResponseCookie(AppId + "-user", "testuser2", this._expiration2))
@@ -562,13 +589,14 @@ namespace UnitTests {
              .MustHaveHappened(Repeated.Exactly.Once);
 
             fcs2.PublishCatalog(new Catalog());
-            FcsClient.Token.Should().Be(Token2);
-            FcsClient.TokenExpires.Should().Be(this._expiration2);
-            FcsClient.User.Should().Be("testuser2");
+            fcs2.Token.Value.Should().Be(Token2);
+            fcs2.Token.Expires.Should().Be(this._expiration2);
+            fcs2.Token.User.Should().Be("testuser2");
 
             A.CallTo(() => client.Post(A<Catalog>._,
-                                       A<Dictionary<string, string>>.That.Matches(h => h["X-Fcs-App"] == AppId &&
-                                                                                       h["Authorization"] == "Bearer " + Token2)))
+                                       A<Headers>.That.Matches(h => h["X-Fcs-App"] == AppId &&
+                                                                    h["Authorization"] == "Bearer " + Token2),
+                                       A<Headers>._))
              .MustHaveHappened(Repeated.Exactly.Once);
         }
     }

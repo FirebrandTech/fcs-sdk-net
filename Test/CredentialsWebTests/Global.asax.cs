@@ -17,12 +17,12 @@ namespace WebFormsTest {
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
             FcsClient.LogFactory = new NLogFactory();
-            Logger.Debug("Application_Start");
+            FcsClient.InitApplication(this);
         }
 
-        private void Application_BeginRequest(object sender, EventArgs e) {
-            Logger.Debug("Application_BeginRequest: {0}", HttpContext.Current.Request.Url);
-        }
+        //private void Application_BeginRequest(object sender, EventArgs e) {
+        //    Logger.Debug("Application_BeginRequest: {0}", HttpContext.Current.Request.Url);
+        //}
 
         private void Session_Start(object sender, EventArgs e) {
             Logger.Debug("Session_Start: {0}", HttpContext.Current.Request.Url);
@@ -33,8 +33,6 @@ namespace WebFormsTest {
                 "Application_AuthenticateRequest: {0} : {1}",
                 HttpContext.Current.Request.Url,
                 (HttpContext.Current.User != null ? HttpContext.Current.User.Identity.Name : ""));
-
-            FcsClient.StartSession();
         }
     }
 }

@@ -6,9 +6,16 @@ using System.Net;
 using ServiceStack;
 
 namespace Fcs.Framework {
+    public class Headers : Dictionary<string, string> {}
+
     public interface IServiceClient : IDisposable {
-        TResponse Post<TResponse>(IReturn<TResponse> request, Dictionary<string, string> headers);
-        TResponse Delete<TResponse>(IReturn<TResponse> request, Dictionary<string, string> headers);
+        TResponse Post<TResponse>(IReturn<TResponse> request,
+                                  Headers requestHeaders,
+                                  Headers responseHeaders);
+
+        TResponse Delete<TResponse>(IReturn<TResponse> request,
+                                    Headers requestHeaders,
+                                    Headers responseHeaders);
     }
 
     public interface IServiceClientFactory {
@@ -27,19 +34,24 @@ namespace Fcs.Framework {
         public JsonServiceClient(string url) {
             this._client = new ServiceStack.JsonServiceClient(url)
                            {
-                               AllowAutoRedirect = false, 
+                               AllowAutoRedirect = false,
                                StoreCookies = false,
                                CookieContainer = null
                            };
         }
 
-        public TResponse Post<TResponse>(IReturn<TResponse> request, Dictionary<string, string> headers) {
-            this._client.RequestFilter = RequestFilter(headers);
+        public TResponse Post<TResponse>(IReturn<TResponse> request,
+                                         Headers requestHeaders,
+                                         Headers responseHeaders) {
+            if (requestHeaders != null) this._client.RequestFilter = RequestFilter(requestHeaders);
+            if (responseHeaders != null) this._client.ResponseFilter = ResponseFilter(responseHeaders);
             return this._client.Post(request);
         }
 
-        public TResponse Delete<TResponse>(IReturn<TResponse> request, Dictionary<string, string> headers) {
-            this._client.RequestFilter = RequestFilter(headers);
+        public TResponse Delete<TResponse>(IReturn<TResponse> request,
+                                           Headers requestHeaders,
+                                           Headers responseHeaders) {
+            this._client.RequestFilter = RequestFilter(requestHeaders);
             return this._client.Delete(request);
         }
 
@@ -47,11 +59,21 @@ namespace Fcs.Framework {
             this._client.Dispose();
         }
 
-        private static Action<HttpWebRequest> RequestFilter(Dictionary<string, string> headers) {
+        private static Action<HttpWebRequest> RequestFilter(Headers headers) {
             return r => {
                        if (headers == null) return;
                        foreach (var header in headers) {
                            r.Headers.Add(header.Key, header.Value);
+                       }
+                   };
+        }
+
+        private static Action<HttpWebResponse> ResponseFilter(Headers headers) {
+            return r => {
+                       if (headers == null) return;
+                       foreach (string key in r.Headers) {
+                           var value = r.Headers[key];
+                           headers[key] = value;
                        }
                    };
         }

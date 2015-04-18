@@ -11,11 +11,12 @@
     <asp:PlaceHolder runat="server">
         <%: Scripts.Render("~/bundles/modernizr") %>
     </asp:PlaceHolder>
-    <webopt:bundlereference runat="server" path="~/Content/css" />
+    <webopt:BundleReference runat="server" Path="~/Content/css" />
     <link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+    <link href="//cloud.local/widgets/content/fcw.css" rel="stylesheet" type="text/css" />
 
 </head>
-<body>
+<body data-ng-app="widgets" data-fc-app="<%: Environment.GetEnvironmentVariable("FcsAppId") %>">
     <form runat="server">
         <asp:ScriptManager runat="server">
             <Scripts>
@@ -38,6 +39,28 @@
             </Scripts>
         </asp:ScriptManager>
 
+        <script src="//cloud.local/widgets/scripts/angular.js"> </script>
+        <script src="//cloud.local/widgets/scripts/angular-ui/ui-bootstrap-tpls.js"> </script>
+        <script src="//cloud.local/widgets/scripts/widgets/angular-tablesort.js"></script>
+        <script src="//cloud.local/widgets/scripts/widgets/1init.js"> </script>
+        <script src="//cloud.local/widgets/scripts/widgets/1widget.js"> </script>
+        <script src="//cloud.local/widgets/scripts/widgets/addtocart.js"> </script>
+        <script src="//cloud.local/widgets/scripts/widgets/cart.js"> </script>
+        <script src="//cloud.local/widgets/scripts/widgets/cartbadge.js"> </script>
+        <script src="//cloud.local/widgets/scripts/widgets/library.js"> </script>
+        <script src="//cloud.local/widgets/scripts/widgets/login.js"> </script>
+        <script src="//cloud.local/widgets/scripts/widgets/me.js"> </script>
+        <script src="//cloud.local/widgets/scripts/widgets/msgbox.js"></script>
+        <script src="//cloud.local/widgets/scripts/widgets/orders.js"></script>
+        <script src="//cloud.local/widgets/scripts/widgets/user.js"></script>
+        <script src="//cloud.local/widgets/scripts/widgets/users.js"> </script>
+        <script src="//cloud.local/widgets/scripts/widgets/widgets.tmpl.js"> </script>
+        <script src="//cloud.local/widgets/scripts/widgets/catalogproduct.js"> </script>
+        <script src="//cloud.local/widgets/scripts/widgets/catalogproducts.js"> </script>
+        <script src="//cloud.local/widgets/scripts/widgets/catalog.js"> </script>
+        <script src="//cloud.local/widgets/scripts/widgets/blogfeed.js"> </script>
+        <script src="//cloud.local/widgets/scripts/widgets/paging.js"> </script>
+
         <div class="navbar navbar-inverse navbar-fixed-top">
             <div class="container">
                 <div class="navbar-header">
@@ -54,22 +77,11 @@
                         <li><a runat="server" href="~/About">About</a></li>
                         <li><a runat="server" href="~/Contact">Contact</a></li>
                     </ul>
-                    <asp:LoginView runat="server" ViewStateMode="Disabled">
-                        <AnonymousTemplate>
-                            <ul class="nav navbar-nav navbar-right">
-                                <li><a runat="server" href="~/Account/Register">Register</a></li>
-                                <li><a runat="server" href="~/Account/Login">Log in</a></li>
-                            </ul>
-                        </AnonymousTemplate>
-                        <LoggedInTemplate>
-                            <ul class="nav navbar-nav navbar-right">
-                                <li><a runat="server" href="~/Account/Manage" title="Manage your account">Hello, <%: Context.User.Identity.GetUserName()  %> !</a></li>
-                                <li>
-                                    <asp:LoginStatus runat="server" LogoutAction="Redirect" LogoutText="Log off" LogoutPageUrl="~/" OnLoggingOut="Unnamed_LoggingOut" />
-                                </li>
-                            </ul>
-                        </LoggedInTemplate>
-                    </asp:LoginView>
+                    <ul class="nav navbar-nav navbar-right">
+                        <li>
+                            <div data-fc-me=""></div>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
