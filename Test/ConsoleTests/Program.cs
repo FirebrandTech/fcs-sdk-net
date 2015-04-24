@@ -18,7 +18,7 @@ namespace ConsoleTests {
                     var catalog = client.PublishCatalog(new Catalog
                                                         {
                                                             Name = "TestCatalog",
-                                                            ApplicationId = "app-UABFp7"
+                                                            App = "app-UABFp7"
                                                         });
 
                     Console.WriteLine("Catalog {0} Published...", catalog.Id);

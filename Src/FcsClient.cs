@@ -2,7 +2,6 @@
 
 using System;
 using System.Web;
-using System.Web.UI.HtmlControls;
 using Cloud.Api.V2.Model;
 using Fcs.Framework;
 using Fcs.Model;
@@ -29,8 +28,8 @@ namespace Fcs {
         // ReSharper disable once MemberCanBePrivate.Global
         public FcsClient() : this(new FcsConfig()) {}
 
-        public FcsClient(string clientId, string clientSecret, string appId = "fcs", string apiUrl = null)
-            : this(new FcsConfig(clientId, clientSecret, appId, apiUrl)) {}
+        public FcsClient(string clientId, string clientSecret, string app = "fcs", string apiUrl = null)
+            : this(new FcsConfig(clientId, clientSecret, app, apiUrl)) {}
 
         // ReSharper disable once MemberCanBePrivate.Global
         public FcsClient(FcsConfig config) {
@@ -220,7 +219,7 @@ namespace Fcs {
         private Headers GetHeaders() {
             var headers = new Headers
                           {
-                              {AppHeader, this._config.AppId}
+                              {AppHeader, this._config.App}
                           };
 
             //var session = this.Context.GetRequestCookie(this._config.SessionCookie);

@@ -136,7 +136,7 @@ namespace Fcs.Model {
     public class Catalog : IReturn<Catalog> {
         public Guid? Id { get; set; }
         public Guid? SiteId { get; set; }
-        public string ApplicationId { get; set; }
+        public string App { get; set; }
         public string Name { get; set; }
         public string ProjectTag { get; set; }
         public string Description { get; set; }
