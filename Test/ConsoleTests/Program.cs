@@ -14,6 +14,7 @@ namespace ConsoleTests {
                 var appId = Environment.GetEnvironmentVariable("FcsAppId");
                 FcsClient.LogFactory = new NLogFactory();
 
+                // TEST
                 using (var client = new FcsClient(clientId, clientSecret, appId, "http://cloud.local/api/v2")) {
                     var catalog = client.PublishCatalog(new Catalog
                                                         {
