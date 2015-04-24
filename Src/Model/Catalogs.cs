@@ -122,9 +122,9 @@ namespace Fcs.Model {
     * 
     * @apiSuccess {Guid}      id               Catalog Id.
     * @apiSuccess {Guid}      siteId           Site Id.
-    * @apiSuccess {string     applicationId    Application Id.
-    * @apiSuccess {string}    name             Site name.
-    * @apiSuccess {string}    projectTag       Project tag.
+    * @apiSuccess {string     app              Application Name or ReferenceId.
+    * @apiSuccess {string}    name             Catalog name.
+    * @apiSuccess {string}    referenceId      Reference Id.
     * @apiSuccess {string}    description      Site description.
     * @apiSuccess {DateTime}  createDate       Date created.
     * @apiSuccess {DateTime}  publishDate      Date published.
@@ -135,17 +135,14 @@ namespace Fcs.Model {
     [Route("/catalogs", "POST")]
     public class Catalog : IReturn<Catalog> {
         public Guid? Id { get; set; }
-        public Guid? SiteId { get; set; }
+        public string ReferenceId { get; set; }
         public string App { get; set; }
         public string Name { get; set; }
-        public string ProjectTag { get; set; }
         public string Description { get; set; }
         public DateTime? CreateDate { get; set; }
         public DateTime? PublishDate { get; set; }
         public DateTime? ArchiveDate { get; set; }
         public int PublishStatus { get; set; }
-        public string UpdatedBy { get; set; }
-        public DateTime UpdatedAt { get; set; }
         public bool Active { get; set; }
     }
 
