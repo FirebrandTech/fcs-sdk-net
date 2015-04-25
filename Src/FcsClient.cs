@@ -190,7 +190,7 @@ namespace Fcs {
                 // Token is app token.  Save it as the static appToken to minimize token creation.
                 _appToken = token;
             }
-            this.Context.SetSessionItem(SessionKey, token);
+            //this.Context.SetSessionItem(SessionKey, token);
             this.Context.SetResponseCookie(this._config.TokenCookie, token.Value, token.Expires ?? DateTime.MinValue);
             if (token.User.IsFull()) {
                 this.Context.SetResponseCookie(this._config.UserCookie, token.User, token.Expires ?? DateTime.MinValue);
