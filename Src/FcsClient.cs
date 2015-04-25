@@ -5,9 +5,8 @@ using System.Web;
 using Cloud.Api.V2.Model;
 using Fcs.Framework;
 using Fcs.Model;
-using ServiceStack;
 using ServiceStack.Logging;
-using IServiceClient = Fcs.Framework.IServiceClient;
+using StringExtensions = ServiceStack.StringExtensions;
 
 namespace Fcs {
     // ReSharper disable once ClassWithVirtualMembersNeverInherited.Global
@@ -15,14 +14,14 @@ namespace Fcs {
         private const string AppHeader = "X-Fcs-App";
         //private const string SessionHeader = "X-Fcs-Session";
         private const string SessionKey = "FCS-TOKEN";
-        //private const int SessionExpiryDays = 14;
+        private const int SessionExpiryDays = 14;
         private static readonly object Sync = new object();
         private static bool _applicationInitialized;
         private static ILog _logger;
+        private static FcsToken _appToken;
         private readonly FcsConfig _config;
         private IServiceClient _client;
         private IContext _context;
-        private static FcsToken _appToken;
         private FcsToken _token;
 
         // ReSharper disable once MemberCanBePrivate.Global
@@ -92,7 +91,7 @@ namespace Fcs {
             Logger.DebugFormat("EnsureAuthorized: {0}", url);
 
             using (var fcs = new FcsClient()) {
-                fcs.Auth(ignoreContextUser:ignoreContextUser);
+                fcs.Auth(ignoreContextUser: ignoreContextUser);
             }
         }
 
@@ -150,17 +149,18 @@ namespace Fcs {
 
                 if (token == null) {
                     var requestHeaders = this.GetHeaders();
-                    Logger.DebugFormat("POST AUTH REQUEST: {0}", request.ToJsv());
-                    Logger.DebugFormat("POST AUTH REQUEST HEADERS: {0}", requestHeaders.ToJsv());
+                    Logger.DebugFormat("POST AUTH REQUEST: {0}", StringExtensions.ToJsv(request));
+                    Logger.DebugFormat("POST AUTH REQUEST HEADERS: {0}", StringExtensions.ToJsv(requestHeaders));
 
                     var responseHeaders = new Headers();
                     var response = this.ServiceClient.Post(request, requestHeaders, responseHeaders);
-                    Logger.DebugFormat("POST AUTH RESPONSE: {0}", response.ToJsv());
-                    Logger.DebugFormat("POST AUTH RESPONSE HEADERS: {0}", responseHeaders.ToJsv());
+                    Logger.DebugFormat("POST AUTH RESPONSE: {0}", StringExtensions.ToJsv(response));
+                    Logger.DebugFormat("POST AUTH RESPONSE HEADERS: {0}", StringExtensions.ToJsv(responseHeaders));
                     token = new FcsToken
                             {
                                 Value = response.Token,
                                 Expires = response.Expires.ToUtc(),
+                                Session = response.Session,
                                 User = request.UserName
                             };
 
@@ -177,7 +177,8 @@ namespace Fcs {
                 return new AuthResponse
                        {
                            Token = token.Value,
-                           Expires = token.Expires
+                           Expires = token.Expires,
+                           Session = token.Session
                        };
             }
         }
@@ -189,10 +190,15 @@ namespace Fcs {
                 // Token is app token.  Save it as the static appToken to minimize token creation.
                 _appToken = token;
             }
-            //this.Context.SetSessionItem(SessionKey, token);
+            this.Context.SetSessionItem(SessionKey, token);
             this.Context.SetResponseCookie(this._config.TokenCookie, token.Value, token.Expires ?? DateTime.MinValue);
             if (token.User.IsFull()) {
                 this.Context.SetResponseCookie(this._config.UserCookie, token.User, token.Expires ?? DateTime.MinValue);
+            }
+            if (token.Session.IsFull()) {
+                this.Context.SetResponseCookie(this._config.SessionCookie,
+                                               token.Session,
+                                               DateTime.UtcNow.AddDays(SessionExpiryDays));
             }
         }
 
