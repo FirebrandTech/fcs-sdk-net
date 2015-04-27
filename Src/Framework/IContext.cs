@@ -71,18 +71,22 @@ namespace Fcs.Framework {
         public void SetResponseCookie(string name, string value, DateTime expires) {
             if (HttpContext.Current == null) return;
             var res = HttpContext.Current.Response;
+            var cookies = res.Cookies;
             var cookie = new HttpCookie(name, value)
                          {
                              Value = value,
                              Path = "/",
                              HttpOnly = false,
+                             Secure = FormsAuthentication.RequireSSL,
                              Expires = expires
                          };
 
-            if (!string.IsNullOrWhiteSpace(FormsAuthentication.CookieDomain)) {
+            if (FormsAuthentication.CookieDomain.IsFull()) {
                 cookie.Domain = FormsAuthentication.CookieDomain;
             }
-            res.SetCookie(cookie);
+            
+            cookies.Remove(name);
+            cookies.Add(cookie);
         }
     }
 }
