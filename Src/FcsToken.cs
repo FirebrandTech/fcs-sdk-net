@@ -12,7 +12,7 @@ namespace Fcs {
 
         public bool IsValid() {
             return this.Value.IsFull() &&
-                   this.Expires > DateTime.UtcNow;
+                   (this.Expires == null || this.Expires > DateTime.UtcNow);
         }
     }
 }

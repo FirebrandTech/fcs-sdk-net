@@ -29,9 +29,10 @@ namespace Fcs.Model {
     }
 
     public class AuthResponse {
-        public string Continue { get; set; }
         public string Token { get; set; }
-        public string Session { get; set; }
         public DateTime? Expires { get; set; }
+        public string Session { get; set; }
+        public string UserName { get; set; }
+        public string Continue { get; set; }
     }
 }

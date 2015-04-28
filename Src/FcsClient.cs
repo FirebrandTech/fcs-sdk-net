@@ -12,7 +12,7 @@ namespace Fcs {
     // ReSharper disable once ClassWithVirtualMembersNeverInherited.Global
     public class FcsClient : IDisposable {
         private const string AppHeader = "X-Fcs-App";
-        //private const string SessionHeader = "X-Fcs-Session";
+        private const string SessionHeader = "X-Fcs-Session";
         private const string SessionKey = "FCS-TOKEN";
         private const int SessionExpiryDays = 14;
         private static readonly object Sync = new object();
@@ -156,20 +156,7 @@ namespace Fcs {
                     var response = this.ServiceClient.Post(request, requestHeaders, responseHeaders);
                     Logger.DebugFormat("POST AUTH RESPONSE: {0}", StringExtensions.ToJsv(response));
                     Logger.DebugFormat("POST AUTH RESPONSE HEADERS: {0}", StringExtensions.ToJsv(responseHeaders));
-                    token = new FcsToken
-                            {
-                                Value = response.Token,
-                                Expires = response.Expires.ToUtc(),
-                                Session = response.Session,
-                                User = request.UserName
-                            };
-
-                    //var session = responseHeaders.Value(SessionHeader);
-                    //if (session.IsFull()) {
-                    //    this.Context.SetResponseCookie(this._config.SessionCookie,
-                    //                                   session,
-                    //                                   DateTime.UtcNow.AddDays(SessionExpiryDays));
-                    //}
+                    token = CreateToken(response);
                 }
 
                 this.SaveToken(token);
@@ -183,18 +170,28 @@ namespace Fcs {
             }
         }
 
+        private static FcsToken CreateToken(AuthResponse response) {
+            return new FcsToken
+                    {
+                        Value = response.Token,
+                        Expires = response.Expires.ToUtc(),
+                        Session = response.Session,
+                        User = response.UserName
+                    };
+        }
+
         private void SaveToken(FcsToken token) {
             this._token = token;
 
-            if (token.User.IsNullOrWhiteSpace()) {
-                // Token is app token.  Save it as the static appToken to minimize token creation.
-                _appToken = token;
-            }
-            //this.Context.SetSessionItem(SessionKey, token);
-            this.Context.SetResponseCookie(this._config.TokenCookie, token.Value, token.Expires ?? DateTime.MinValue);
             if (token.User.IsFull()) {
                 this.Context.SetResponseCookie(this._config.UserCookie, token.User, token.Expires ?? DateTime.MinValue);
             }
+            else {
+                // Token is app token.  Save it as the static appToken to minimize token creation.
+                _appToken = token;
+                this.Context.SetResponseCookie(this._config.UserCookie, "", DateTime.UtcNow.AddDays(-1));
+            }
+            this.Context.SetResponseCookie(this._config.TokenCookie, token.Value, token.Expires ?? DateTime.MinValue);
             if (token.Session.IsFull()) {
                 this.Context.SetResponseCookie(this._config.SessionCookie,
                                                token.Session,
@@ -205,8 +202,8 @@ namespace Fcs {
         // ReSharper disable once UnusedMember.Global
         public AuthResponse Unauth() {
             var response = this.ServiceClient.Delete(new AuthRequest(), this.GetHeaders(), null);
-            this.Context.SetResponseCookie(this._config.TokenCookie, response.Token, response.Expires ?? DateTime.MinValue);
-            //this.Context.SetResponseCookie(this._config);
+            var token = CreateToken(response);
+            this.SaveToken(token);
             return response;
         }
 
@@ -228,10 +225,10 @@ namespace Fcs {
                               {AppHeader, this._config.App}
                           };
 
-            //var session = this.Context.GetRequestCookie(this._config.SessionCookie);
-            //if (session != null && session.Value.IsFull()) {
-            //    headers.Add(SessionHeader, session.Value);
-            //}
+            var session = this.Context.GetRequestCookie(this._config.SessionCookie);
+            if (session != null && session.Value.IsFull()) {
+                headers.Add(SessionHeader, session.Value);
+            }
 
             var token = this.GetToken(); // Call this to update this._user from cookie if possible.
             if (token == null) return headers;
@@ -242,26 +239,27 @@ namespace Fcs {
 
         private FcsToken GetToken() {
             var tokenCookie = this.Context.GetRequestCookie(this._config.TokenCookie);
+            var sessionCookie = this.Context.GetRequestCookie(this._config.SessionCookie);
             var userCookie = this.Context.GetRequestCookie(this._config.UserCookie);
             var token = this._token;
             if (token != null && token.IsValid()) return token;
 
             if (tokenCookie != null &&
-                tokenCookie.Value.IsFull() &&
-                tokenCookie.Expires > DateTime.UtcNow) {
+                tokenCookie.Value.IsFull()) {
                 var user = userCookie != null && userCookie.Value.IsFull() ? userCookie.Value : null;
+                var session = sessionCookie != null && sessionCookie.Value.IsFull() ? sessionCookie.Value : null;
 
                 token = new FcsToken
                         {
                             Value = tokenCookie.Value,
-                            Expires = tokenCookie.Expires,
-                            User = user
+                            User = user,
+                            Session = session
                         };
                 if (token.IsValid()) return token;
             }
 
-            token = this.Context.GetSessionItem(SessionKey) as FcsToken;
-            if (token != null && token.IsValid()) return token;
+            //token = this.Context.GetSessionItem(SessionKey) as FcsToken;
+            //if (token != null && token.IsValid()) return token;
 
             token = _appToken;
             if (token != null && token.IsValid()) return token;
