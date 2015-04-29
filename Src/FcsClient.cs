@@ -5,7 +5,9 @@ using System.Web;
 using Cloud.Api.V2.Model;
 using Fcs.Framework;
 using Fcs.Model;
+using ServiceStack;
 using ServiceStack.Logging;
+using IServiceClient = Fcs.Framework.IServiceClient;
 using StringExtensions = ServiceStack.StringExtensions;
 
 namespace Fcs {
@@ -149,13 +151,25 @@ namespace Fcs {
 
                 if (token == null) {
                     var requestHeaders = this.GetHeaders();
-                    Logger.DebugFormat("POST AUTH REQUEST: {0}", StringExtensions.ToJsv(request));
-                    Logger.DebugFormat("POST AUTH REQUEST HEADERS: {0}", StringExtensions.ToJsv(requestHeaders));
+                    Logger.DebugFormat("POST AUTH REQUEST: {0}", request.ToJsv());
+                    Logger.DebugFormat("POST AUTH REQUEST HEADERS: {0}", requestHeaders.ToJsv());
 
+                    AuthResponse response = null;
                     var responseHeaders = new Headers();
-                    var response = this.ServiceClient.Post(request, requestHeaders, responseHeaders);
-                    Logger.DebugFormat("POST AUTH RESPONSE: {0}", StringExtensions.ToJsv(response));
-                    Logger.DebugFormat("POST AUTH RESPONSE HEADERS: {0}", StringExtensions.ToJsv(responseHeaders));
+                    try {
+                        response = this.ServiceClient.Post(request, requestHeaders, responseHeaders);
+                    }
+                    catch (WebServiceException e) {
+                        Logger.WarnFormat("POST AUTH ERROR: {0}", e.ErrorMessage);
+
+                        // Attempt with client credentials
+                        requestHeaders = new Headers();
+                        request.ClientId = this._config.ClientId;
+                        request.ClientSecret = this._config.ClientSecret;
+                        response = this.ServiceClient.Post(request, requestHeaders, responseHeaders);
+                    }
+                    Logger.DebugFormat("POST AUTH RESPONSE: {0}", response.ToJsv());
+                    Logger.DebugFormat("POST AUTH RESPONSE HEADERS: {0}", responseHeaders.ToJsv());
                     token = CreateToken(response);
                 }
 
