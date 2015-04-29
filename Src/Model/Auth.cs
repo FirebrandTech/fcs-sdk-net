@@ -16,6 +16,10 @@ namespace Fcs.Model {
         public string ClientSecret { get; set; }
         public string Continue { get; set; }
         public string Uri { get; set; }
+        public string SessionId { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string Email { get; set; }
     }
 
     [Route("/auth/uri", "GET", Summary = "Redirect to Login Page")]
