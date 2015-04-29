@@ -13,7 +13,7 @@ namespace Fcs {
     public class FcsClient : IDisposable {
         private const string AppHeader = "X-Fcs-App";
         private const string SessionHeader = "X-Fcs-Session";
-        private const string SessionKey = "FCS-TOKEN";
+        //private const string SessionKey = "FCS-TOKEN";
         private const int SessionExpiryDays = 14;
         private static readonly object Sync = new object();
         private static bool _applicationInitialized;
@@ -231,7 +231,7 @@ namespace Fcs {
             return this.ServiceClient.Post(catalogCategory, headers, null);
         }
 
-        public CatalogProductDto PublishCatalogProduct(CatalogProductDto catalogProduct) {
+        public CatalogProduct PublishCatalogProduct(CatalogProduct catalogProduct) {
             this.Auth();
             var headers = this.GetHeaders();
             return this.ServiceClient.Post(catalogProduct, headers, null);
