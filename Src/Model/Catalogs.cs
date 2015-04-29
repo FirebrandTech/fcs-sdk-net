@@ -244,7 +244,7 @@ namespace Fcs.Model {
     * }
     */
     [Route("/catalogs/{catalogId}/products/{productId}", "POST")]
-    public class CatalogProductDto : IReturn<CatalogProductDto> {
+    public class CatalogProduct : IReturn<CatalogProduct> {
         public Guid? Id { get; set; }
         public Guid? ProductId { get; set; }
         public Guid? CatalogId { get; set; }
