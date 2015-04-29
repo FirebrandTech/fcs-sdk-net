@@ -219,6 +219,30 @@ namespace Fcs {
             return this.ServiceClient.Post(catalog, headers, null);
         }
 
+        public CatalogComment PublishCatalogComment(CatalogComment catalogComment) {
+            this.Auth();
+            var headers = this.GetHeaders();
+            return this.ServiceClient.Post(catalogComment, headers, null);
+        }
+
+        public CatalogCategory PublishCatalogCategory(CatalogCategory catalogCategory) {
+            this.Auth();
+            var headers = this.GetHeaders();
+            return this.ServiceClient.Post(catalogCategory, headers, null);
+        }
+
+        public CatalogProductDto PublishCatalogProduct(CatalogProductDto catalogProduct) {
+            this.Auth();
+            var headers = this.GetHeaders();
+            return this.ServiceClient.Post(catalogProduct, headers, null);
+        }
+
+        public CatalogProductCategory PublishCatalogProductCategory(CatalogProductCategory catalogProductCategory) {
+            this.Auth();
+            var headers = this.GetHeaders();
+            return this.ServiceClient.Post(catalogProductCategory, headers, null);
+        }
+
         private Headers GetHeaders() {
             var headers = new Headers
                           {

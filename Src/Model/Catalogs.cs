@@ -27,7 +27,7 @@ namespace Fcs.Model {
     * @apiSuccess {DateTime}  updatedAt        UpdatedAt date.
     */
     [Route("/catalogs/{catalogId}/categories", "POST")]
-    public class CatalogCategory {
+    public class CatalogCategory : IReturn<CatalogCategory> {
         public Guid? Id { get; set; }
         public string TypeTag { get; set; }
         public string Name { get; set; }
@@ -85,7 +85,7 @@ namespace Fcs.Model {
     * @apiSuccess {DateTime}  updatedAt        UpdatedAt date.
     */
     [Route("/catalogs/{catalogId}/comments", "POST")]
-    public class CatalogComment {
+    public class CatalogComment : IReturn<CatalogComment> {
         public Guid? Id { get; set; }
         public string TypeTag { get; set; }
         public string Html { get; set; }
@@ -161,7 +161,7 @@ namespace Fcs.Model {
     * @apiSuccess {DateTime}  updatedAt        UpdatedAt date.
     */
     [Route("/catalogs/products/{catalogProductId}/category/{categoryId}", "POST")]
-    public class CatalogProductCategory {
+    public class CatalogProductCategory : IReturn<CatalogProductCategory> {
         public Guid? Id { get; set; }
         public Guid? CatalogProductId { get; set; }
         public Guid CategoryId { get; set; }
@@ -244,7 +244,7 @@ namespace Fcs.Model {
     * }
     */
     [Route("/catalogs/{catalogId}/products/{productId}", "POST")]
-    public class CatalogProductDto {
+    public class CatalogProductDto : IReturn<CatalogProductDto> {
         public Guid? Id { get; set; }
         public Guid? ProductId { get; set; }
         public Guid? CatalogId { get; set; }
