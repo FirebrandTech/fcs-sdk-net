@@ -135,15 +135,6 @@ namespace Fcs {
                     request.UserName = this.Context.CurrentUserName ?? (token ?? new FcsToken()).User;
                 }
 
-                //if (token != null) {
-                //    if (token.User.IsNullOrWhiteSpace()) {
-                //        // The token is an app token.  Clear out client credentials as they are not needed.
-                //        // the app token will be passed on the Authorization header.
-                //        request.ClientId = null;
-                //        request.ClientSecret = null;
-                //    }
-                //    else if (token.User.EqualsIgnoreCase(request.UserName))
-                //}
                 if (token != null &&
                     !string.Equals(token.User, request.UserName, StringComparison.OrdinalIgnoreCase) &&
                     !ignoreContextUser) {
@@ -197,18 +188,22 @@ namespace Fcs {
                     };
         }
 
+        /// <summary>
+        /// Save the token information in the following places:  static, instance, and cookies.
+        /// </summary>
+        /// <param name="token">token information</param>
         private void SaveToken(FcsToken token) {
             this._token = token;
 
             if (token.User.IsFull()) {
-                this.Context.SetResponseCookie(this._config.UserCookie, token.User, token.Expires ?? DateTime.MinValue);
+                this.Context.SetResponseCookie(this._config.UserCookie, token.User, token.Expires.ToUtc() ?? DateTime.MinValue);
             }
             else {
                 // Token is app token.  Save it as the static appToken to minimize token creation.
                 _appToken = token;
                 this.Context.SetResponseCookie(this._config.UserCookie, "", DateTime.UtcNow.AddYears(-1));
             }
-            this.Context.SetResponseCookie(this._config.TokenCookie, token.Value, token.Expires ?? DateTime.MinValue);
+            this.Context.SetResponseCookie(this._config.TokenCookie, token.Value, token.Expires.ToUtc() ?? DateTime.MinValue);
             if (token.Session.IsFull()) {
                 this.Context.SetResponseCookie(this._config.SessionCookie,
                                                token.Session,

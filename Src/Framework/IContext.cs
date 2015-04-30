@@ -84,7 +84,10 @@ namespace Fcs.Framework {
             if (FormsAuthentication.CookieDomain.IsFull()) {
                 cookie.Domain = FormsAuthentication.CookieDomain;
             }
-            
+
+            Logger.DebugFormat("SET-RESPONSE-COOKIE: {0};{1};{2};{3};{4};{5}",
+                               cookie.Value, cookie.Path, cookie.HttpOnly, cookie.Secure, cookie.Expires, cookie.Domain);
+
             cookies.Remove(name);
             cookies.Add(cookie);
         }
