@@ -196,14 +196,14 @@ namespace Fcs {
             this._token = token;
 
             if (token.User.IsFull()) {
-                this.Context.SetResponseCookie(this._config.UserCookie, token.User, token.Expires.ToUtc() ?? DateTime.MinValue);
+                this.Context.SetResponseCookie(this._config.UserCookie, token.User, token.Expires.Value);
             }
             else {
                 // Token is app token.  Save it as the static appToken to minimize token creation.
                 _appToken = token;
                 this.Context.SetResponseCookie(this._config.UserCookie, "", DateTime.UtcNow.AddYears(-1));
             }
-            this.Context.SetResponseCookie(this._config.TokenCookie, token.Value, token.Expires.ToUtc() ?? DateTime.MinValue);
+            this.Context.SetResponseCookie(this._config.TokenCookie, token.Value, token.Expires.Value);
             if (token.Session.IsFull()) {
                 this.Context.SetResponseCookie(this._config.SessionCookie,
                                                token.Session,
