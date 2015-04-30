@@ -8,7 +8,6 @@ using Fcs.Model;
 using ServiceStack;
 using ServiceStack.Logging;
 using IServiceClient = Fcs.Framework.IServiceClient;
-using StringExtensions = ServiceStack.StringExtensions;
 
 namespace Fcs {
     // ReSharper disable once ClassWithVirtualMembersNeverInherited.Global
@@ -42,6 +41,10 @@ namespace Fcs {
             // ReSharper disable once UnusedMember.Global
             get { return LogManager.LogFactory; }
             set { LogManager.LogFactory = value; }
+        }
+
+        public FcsConfig Config {
+            get { return this._config; }
         }
 
         public FcsToken Token {
