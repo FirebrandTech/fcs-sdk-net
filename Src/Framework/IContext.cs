@@ -64,14 +64,14 @@ namespace Fcs.Framework {
 
         public HttpCookie GetRequestCookie(string name) {
             if (HttpContext.Current == null) return null;
-            var cookies = HttpContext.Current.Request.Cookies;
+            HttpCookieCollection cookies = HttpContext.Current.Request.Cookies;
             return cookies.Get(name);
         }
 
         public void SetResponseCookie(string name, string value, DateTime? expires = null) {
             if (HttpContext.Current == null) return;
-            var res = HttpContext.Current.Response;
-            var cookies = res.Cookies;
+            HttpResponse res = HttpContext.Current.Response;
+            HttpCookieCollection cookies = res.Cookies;
             var cookie = new HttpCookie(name, value)
                          {
                              Value = value,

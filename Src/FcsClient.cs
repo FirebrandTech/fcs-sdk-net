@@ -5,8 +5,9 @@ using System.Web;
 using Cloud.Api.V2.Model;
 using Fcs.Framework;
 using Fcs.Model;
+using ServiceStack;
 using ServiceStack.Logging;
-using StringExtensions = ServiceStack.StringExtensions;
+using IServiceClient = Fcs.Framework.IServiceClient;
 
 // ReSharper disable UnusedMember.Global
 
@@ -92,7 +93,7 @@ namespace Fcs {
         }
 
         public static void EnsureAuthorized(bool ignoreContextUser = false) {
-            var url = HttpContext.Current.Request.Url;
+            Uri url = HttpContext.Current.Request.Url;
             if (url.PathAndQuery.Contains("/__browserLink/")) return;
             Logger.DebugFormat("EnsureAuthorized: {0}", url);
 
@@ -128,8 +129,12 @@ namespace Fcs {
 
         public AuthResponse Auth(AuthRequest request, bool ignoreContextUser = false) {
             lock (Sync) {
-                var token = this.GetToken();
+                FcsToken token = this.GetToken();
 
+                if (token == null) {
+                    request.ClientId = this._config.ClientId;
+                    request.ClientSecret = this._config.ClientSecret;
+                }
                 if (request.UserName.IsNullOrWhiteSpace()) {
                     request.UserName = this.Context.CurrentUserName ?? (token ?? new FcsToken()).User;
                 }
@@ -143,12 +148,12 @@ namespace Fcs {
                 }
 
                 if (token == null) {
-                    var requestHeaders = this.GetHeaders();
+                    Headers requestHeaders = this.GetHeaders();
                     Logger.DebugFormat("POST AUTH REQUEST: {0}", StringExtensions.ToJsv(request));
                     Logger.DebugFormat("POST AUTH REQUEST HEADERS: {0}", StringExtensions.ToJsv(requestHeaders));
 
                     var responseHeaders = new Headers();
-                    var response = this.ServiceClient.Post(request, requestHeaders, responseHeaders);
+                    AuthResponse response = this.ServiceClient.Post(request, requestHeaders, responseHeaders);
                     Logger.DebugFormat("POST AUTH RESPONSE: {0}", StringExtensions.ToJsv(response));
                     Logger.DebugFormat("POST AUTH RESPONSE HEADERS: {0}", StringExtensions.ToJsv(responseHeaders));
                     token = new FcsToken(response);
@@ -167,21 +172,17 @@ namespace Fcs {
         }
 
         /// <summary>
-        /// Save the token information in the following places:  static, instance, and cookies.
+        ///     Save the token information in the following places:  static, instance, and cookies.
         /// </summary>
         /// <param name="token">token information</param>
         private void SaveToken(FcsToken token) {
             this._token = token;
 
-            if (token.User.IsFull()) {
-                this.Context.SetResponseCookie(this._config.UserCookie, token.User, null);
-            }
-            else {
+            if (token.User.IsNullOrWhiteSpace()) {
                 // Token is app token.  Save it as the static appToken to minimize token creation.
                 _appToken = token;
-                this.Context.SetResponseCookie(this._config.UserCookie, "", DateTime.UtcNow.AddYears(-1));
             }
-            this.Context.SetResponseCookie(this._config.TokenCookie, token.ToCookieValue(), null);
+            this.Context.SetResponseCookie(this._config.TokenCookie, token.SerializeToken(), null);
             if (token.Session.IsFull()) {
                 this.Context.SetResponseCookie(this._config.SessionCookie,
                                                token.Session,
@@ -190,7 +191,7 @@ namespace Fcs {
         }
 
         public AuthResponse Unauth() {
-            var response = this.ServiceClient.Delete(new AuthRequest(), this.GetHeaders(), null);
+            AuthResponse response = this.ServiceClient.Delete(new AuthRequest(), this.GetHeaders(), null);
             var token = new FcsToken(response);
             this.SaveToken(token);
             return response;
@@ -203,31 +204,31 @@ namespace Fcs {
 
         public Catalog PublishCatalog(Catalog catalog) {
             this.Auth();
-            var headers = this.GetHeaders();
+            Headers headers = this.GetHeaders();
             return this.ServiceClient.Post(catalog, headers, null);
         }
 
         public CatalogComment PublishCatalogComment(CatalogComment catalogComment) {
             this.Auth();
-            var headers = this.GetHeaders();
+            Headers headers = this.GetHeaders();
             return this.ServiceClient.Post(catalogComment, headers, null);
         }
 
         public CatalogCategory PublishCatalogCategory(CatalogCategory catalogCategory) {
             this.Auth();
-            var headers = this.GetHeaders();
+            Headers headers = this.GetHeaders();
             return this.ServiceClient.Post(catalogCategory, headers, null);
         }
 
         public CatalogProduct PublishCatalogProduct(CatalogProduct catalogProduct) {
             this.Auth();
-            var headers = this.GetHeaders();
+            Headers headers = this.GetHeaders();
             return this.ServiceClient.Post(catalogProduct, headers, null);
         }
 
         public CatalogProductCategory PublishCatalogProductCategory(CatalogProductCategory catalogProductCategory) {
             this.Auth();
-            var headers = this.GetHeaders();
+            Headers headers = this.GetHeaders();
             return this.ServiceClient.Post(catalogProductCategory, headers, null);
         }
 
@@ -237,12 +238,12 @@ namespace Fcs {
                               {AppHeader, this._config.App}
                           };
 
-            var session = this.Context.GetRequestCookie(this._config.SessionCookie);
+            HttpCookie session = this.Context.GetRequestCookie(this._config.SessionCookie);
             if (session != null && session.Value.IsFull()) {
                 headers.Add(SessionHeader, session.Value);
             }
 
-            var token = this.GetToken(); // Call this to update this._user from cookie if possible.
+            FcsToken token = this.GetToken(); // Call this to update this._user from cookie if possible.
             if (token == null) return headers;
             headers.Add("Authorization", String.Format("Bearer {0}", token.Value));
             //headers.Add("X-NoRedirect", "true");
@@ -250,18 +251,18 @@ namespace Fcs {
         }
 
         private FcsToken GetToken() {
-            var tokenCookie = this.Context.GetRequestCookie(this._config.TokenCookie);
-            var sessionCookie = this.Context.GetRequestCookie(this._config.SessionCookie);
-            var userCookie = this.Context.GetRequestCookie(this._config.UserCookie);
-            var token = this._token;
+            HttpCookie tokenCookie = this.Context.GetRequestCookie(this._config.TokenCookie);
+            HttpCookie sessionCookie = this.Context.GetRequestCookie(this._config.SessionCookie);
+            //var userCookie = this.Context.GetRequestCookie(this._config.UserCookie);
+            FcsToken token = this._token;
             if (token != null && token.IsValid()) return token;
 
             if (tokenCookie != null &&
                 tokenCookie.Value.IsFull()) {
-                var user = userCookie != null && userCookie.Value.IsFull() ? userCookie.Value : null;
-                var session = sessionCookie != null && sessionCookie.Value.IsFull() ? sessionCookie.Value : null;
+                //var user = userCookie != null && userCookie.Value.IsFull() ? userCookie.Value : null;
+                string session = sessionCookie != null && sessionCookie.Value.IsFull() ? sessionCookie.Value : null;
 
-                token = new FcsToken(tokenCookie, user, session);
+                token = new FcsToken(tokenCookie.Value, session);
                 if (token.IsValid()) return token;
             }
 

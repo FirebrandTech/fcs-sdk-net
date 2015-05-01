@@ -72,7 +72,7 @@ namespace Fcs.Framework {
             return r => {
                        if (headers == null) return;
                        foreach (string key in r.Headers) {
-                           var value = r.Headers[key];
+                           string value = r.Headers[key];
                            headers[key] = value;
                        }
                    };
