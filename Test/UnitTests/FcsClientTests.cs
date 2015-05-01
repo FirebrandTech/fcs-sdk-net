@@ -321,13 +321,13 @@ namespace UnitTests {
                       };
             fcs.Auth();
 
-            A.CallTo(() => context.SetResponseCookie(AppId + "-token", Token+"|"+this._expiration.ToString("s"), null))
+            A.CallTo(() => context.SetResponseCookie(AppId + "-token", new AccessToken {T = Token, E = this._expiration}.SerializeToken(), null))
              .MustHaveHappened(Repeated.Exactly.Once);
 
             var context2 = A.Fake<IContext>();
             A.CallTo(() => context2.CurrentUserName).Returns(null);
             A.CallTo(() => context2.GetRequestCookie(AppId + "-token"))
-             .Returns(new HttpCookie(AppId + "-token", Token+"|"+this._expiration.ToString("s")));
+             .Returns(new HttpCookie(AppId + "-token", new AccessToken {T = Token, E = this._expiration}.SerializeToken()));
 
             var fcs2 = new FcsClient(ClientId, ClientSecret, AppId)
                        {
@@ -371,7 +371,7 @@ namespace UnitTests {
             var context2 = A.Fake<IContext>();
             A.CallTo(() => context2.CurrentUserName).Returns(null);
             A.CallTo(() => context2.GetRequestCookie(AppId + "-token"))
-             .Returns(new HttpCookie(AppId + "-token", Token + "|" +this._expiration.ToString("s")));
+             .Returns(new HttpCookie(AppId + "-token", new AccessToken { T = Token, E = this._expiration }.SerializeToken()));
 
             var fcs2 = new FcsClient(ClientId, ClientSecret, AppId)
                        {
@@ -416,17 +416,13 @@ namespace UnitTests {
                       };
             fcs.Auth();
 
-            A.CallTo(() => context.SetResponseCookie(AppId + "-token", Token+"|"+this._expiration.ToString("s"), null))
-             .MustHaveHappened(Repeated.Exactly.Once);
-            A.CallTo(() => context.SetResponseCookie(AppId + "-user", "testuser", null))
+            A.CallTo(() => context.SetResponseCookie(AppId + "-token", new AccessToken {T = Token, E = this._expiration, U="testuser"}.SerializeToken(), null))
              .MustHaveHappened(Repeated.Exactly.Once);
 
             var context2 = A.Fake<IContext>();
             A.CallTo(() => context2.CurrentUserName).Returns("testuser");
             A.CallTo(() => context2.GetRequestCookie(AppId + "-token"))
-             .Returns(new HttpCookie(AppId + "-token", Token+"|"+this._expiration.ToString("s")));
-            A.CallTo(() => context2.GetRequestCookie(AppId + "-user"))
-             .Returns(new HttpCookie(AppId + "-user", "testuser"));
+             .Returns(new HttpCookie(AppId + "-token", new AccessToken {T = Token, E = this._expiration, U="testuser"}.SerializeToken()));
 
             var fcs2 = new FcsClient(ClientId, ClientSecret, AppId)
                        {
@@ -485,13 +481,13 @@ namespace UnitTests {
                       };
             fcs.Auth();
 
-            A.CallTo(() => context.SetResponseCookie(AppId + "-token", Token+"|"+this._expiration.ToString("s"), null))
+            A.CallTo(() => context.SetResponseCookie(AppId + "-token", new AccessToken {T = Token, E = this._expiration}.SerializeToken(), null))
              .MustHaveHappened(Repeated.Exactly.Once);
 
             var context2 = A.Fake<IContext>();
             A.CallTo(() => context2.CurrentUserName).Returns("testuser");
             A.CallTo(() => context2.GetRequestCookie(AppId + "-token"))
-             .Returns(new HttpCookie(AppId + "-token", Token+"|"+this._expiration.ToString("s")));
+             .Returns(new HttpCookie(AppId + "-token", new AccessToken {T = Token, E = this._expiration}.SerializeToken()));
             A.CallTo(() => context2.GetRequestCookie(AppId + "-user"))
              .Returns(null);
 
@@ -503,9 +499,8 @@ namespace UnitTests {
 
             //fcs2.Auth();
             fcs2.PublishCatalog(new Catalog());
-            A.CallTo(() => context2.SetResponseCookie(AppId + "-user", "testuser", null))
-             .MustHaveHappened(Repeated.Exactly.Once);
-            A.CallTo(() => context2.SetResponseCookie(AppId + "-token", Token2+"|"+this._expiration2.ToString("s"), null))
+            A.CallTo(() => context2.SetResponseCookie(AppId + "-token",
+                                                      new AccessToken {T = Token2, E = this._expiration2, U = "testuser"}.SerializeToken(), null))
              .MustHaveHappened(Repeated.Exactly.Once);
 
             fcs2.Token.Value.Should().Be(Token2);
@@ -557,13 +552,13 @@ namespace UnitTests {
                       };
             fcs.Auth();
 
-            A.CallTo(() => context.SetResponseCookie(AppId + "-token", Token+"|"+this._expiration.ToString("s"), null))
+            A.CallTo(() => context.SetResponseCookie(AppId + "-token", new AccessToken {T = Token, E = this._expiration}.SerializeToken(), null))
              .MustHaveHappened(Repeated.Exactly.Once);
 
             var context2 = A.Fake<IContext>();
             A.CallTo(() => context2.CurrentUserName).Returns("testuser2");
             A.CallTo(() => context2.GetRequestCookie(AppId + "-token"))
-             .Returns(new HttpCookie(AppId + "-token", Token+"|"+this._expiration.ToString("s")));
+             .Returns(new HttpCookie(AppId + "-token", new AccessToken {T = Token, E = this._expiration}.SerializeToken()));
             A.CallTo(() => context2.GetRequestCookie(AppId + "-user"))
              .Returns(null);
 
@@ -574,9 +569,7 @@ namespace UnitTests {
                        };
 
             fcs2.Auth();
-            A.CallTo(() => context2.SetResponseCookie(AppId + "-user", "testuser2", null))
-             .MustHaveHappened(Repeated.Exactly.Once);
-            A.CallTo(() => context2.SetResponseCookie(AppId + "-token", Token2+"|"+this._expiration2.ToString("s"), null))
+            A.CallTo(() => context2.SetResponseCookie(AppId + "-token", new AccessToken { T = Token2, E = this._expiration2, U="testuser2" }.SerializeToken(), null))
              .MustHaveHappened(Repeated.Exactly.Once);
 
             fcs2.PublishCatalog(new Catalog());
