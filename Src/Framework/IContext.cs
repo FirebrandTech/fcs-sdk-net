@@ -14,7 +14,7 @@ namespace Fcs.Framework {
         void SetCacheItem(string key, object item, DateTime expiration);
         object GetCacheItem(string key);
         HttpCookie GetRequestCookie(string name);
-        void SetResponseCookie(string name, string value, DateTime expires);
+        void SetResponseCookie(string name, string value, DateTime? expires);
     }
 
     public class AspNetContext : IContext {
@@ -68,7 +68,7 @@ namespace Fcs.Framework {
             return cookies.Get(name);
         }
 
-        public void SetResponseCookie(string name, string value, DateTime expires) {
+        public void SetResponseCookie(string name, string value, DateTime? expires = null) {
             if (HttpContext.Current == null) return;
             var res = HttpContext.Current.Response;
             var cookies = res.Cookies;
@@ -78,7 +78,7 @@ namespace Fcs.Framework {
                              Path = "/",
                              HttpOnly = false,
                              Secure = FormsAuthentication.RequireSSL,
-                             Expires = expires
+                             Expires = expires != null ? expires.Value : DateTime.MinValue
                          };
 
             if (FormsAuthentication.CookieDomain.IsFull()) {

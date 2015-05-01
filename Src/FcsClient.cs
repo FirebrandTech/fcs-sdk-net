@@ -5,9 +5,10 @@ using System.Web;
 using Cloud.Api.V2.Model;
 using Fcs.Framework;
 using Fcs.Model;
-using ServiceStack;
 using ServiceStack.Logging;
-using IServiceClient = Fcs.Framework.IServiceClient;
+using StringExtensions = ServiceStack.StringExtensions;
+
+// ReSharper disable UnusedMember.Global
 
 namespace Fcs {
     // ReSharper disable once ClassWithVirtualMembersNeverInherited.Global
@@ -125,8 +126,6 @@ namespace Fcs {
                       ignoreContextUser);
         }
 
-        // ReSharper disable once MemberCanBePrivate.Global
-        // ReSharper disable once UnusedMethodReturnValue.Global
         public AuthResponse Auth(AuthRequest request, bool ignoreContextUser = false) {
             lock (Sync) {
                 var token = this.GetToken();
@@ -145,26 +144,14 @@ namespace Fcs {
 
                 if (token == null) {
                     var requestHeaders = this.GetHeaders();
-                    Logger.DebugFormat("POST AUTH REQUEST: {0}", request.ToJsv());
-                    Logger.DebugFormat("POST AUTH REQUEST HEADERS: {0}", requestHeaders.ToJsv());
+                    Logger.DebugFormat("POST AUTH REQUEST: {0}", StringExtensions.ToJsv(request));
+                    Logger.DebugFormat("POST AUTH REQUEST HEADERS: {0}", StringExtensions.ToJsv(requestHeaders));
 
-                    AuthResponse response = null;
                     var responseHeaders = new Headers();
-                    try {
-                        response = this.ServiceClient.Post(request, requestHeaders, responseHeaders);
-                    }
-                    catch (WebServiceException e) {
-                        Logger.WarnFormat("POST AUTH ERROR: {0}", e.ErrorMessage);
-
-                        // Attempt with client credentials
-                        requestHeaders = new Headers();
-                        request.ClientId = this._config.ClientId;
-                        request.ClientSecret = this._config.ClientSecret;
-                        response = this.ServiceClient.Post(request, requestHeaders, responseHeaders);
-                    }
-                    Logger.DebugFormat("POST AUTH RESPONSE: {0}", response.ToJsv());
-                    Logger.DebugFormat("POST AUTH RESPONSE HEADERS: {0}", responseHeaders.ToJsv());
-                    token = CreateToken(response);
+                    var response = this.ServiceClient.Post(request, requestHeaders, responseHeaders);
+                    Logger.DebugFormat("POST AUTH RESPONSE: {0}", StringExtensions.ToJsv(response));
+                    Logger.DebugFormat("POST AUTH RESPONSE HEADERS: {0}", StringExtensions.ToJsv(responseHeaders));
+                    token = new FcsToken(response);
                 }
 
                 this.SaveToken(token);
@@ -173,19 +160,10 @@ namespace Fcs {
                        {
                            Token = token.Value,
                            Expires = token.Expires,
-                           Session = token.Session
+                           Session = token.Session,
+                           UserName = token.User
                        };
             }
-        }
-
-        private static FcsToken CreateToken(AuthResponse response) {
-            return new FcsToken
-                    {
-                        Value = response.Token,
-                        Expires = response.Expires.ToUtc(),
-                        Session = response.Session,
-                        User = response.UserName
-                    };
         }
 
         /// <summary>
@@ -196,14 +174,14 @@ namespace Fcs {
             this._token = token;
 
             if (token.User.IsFull()) {
-                this.Context.SetResponseCookie(this._config.UserCookie, token.User, token.Expires.Value);
+                this.Context.SetResponseCookie(this._config.UserCookie, token.User, null);
             }
             else {
                 // Token is app token.  Save it as the static appToken to minimize token creation.
                 _appToken = token;
                 this.Context.SetResponseCookie(this._config.UserCookie, "", DateTime.UtcNow.AddYears(-1));
             }
-            this.Context.SetResponseCookie(this._config.TokenCookie, token.Value, token.Expires.Value);
+            this.Context.SetResponseCookie(this._config.TokenCookie, token.ToCookieValue(), null);
             if (token.Session.IsFull()) {
                 this.Context.SetResponseCookie(this._config.SessionCookie,
                                                token.Session,
@@ -211,15 +189,13 @@ namespace Fcs {
             }
         }
 
-        // ReSharper disable once UnusedMember.Global
         public AuthResponse Unauth() {
             var response = this.ServiceClient.Delete(new AuthRequest(), this.GetHeaders(), null);
-            var token = CreateToken(response);
+            var token = new FcsToken(response);
             this.SaveToken(token);
             return response;
         }
 
-        // ReSharper disable once UnusedMember.Global
         public object PlaceOrder(Order order) {
             this.Auth(order.UserName ?? (order.User ?? new User()).Email);
             return this.ServiceClient.Post(order, this.GetHeaders(), null);
@@ -285,12 +261,7 @@ namespace Fcs {
                 var user = userCookie != null && userCookie.Value.IsFull() ? userCookie.Value : null;
                 var session = sessionCookie != null && sessionCookie.Value.IsFull() ? sessionCookie.Value : null;
 
-                token = new FcsToken
-                        {
-                            Value = tokenCookie.Value,
-                            User = user,
-                            Session = session
-                        };
+                token = new FcsToken(tokenCookie, user, session);
                 if (token.IsValid()) return token;
             }
 
@@ -304,3 +275,5 @@ namespace Fcs {
         }
     }
 }
+
+// ReSharper restore UnusedMember.Global
