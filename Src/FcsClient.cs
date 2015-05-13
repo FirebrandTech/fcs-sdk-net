@@ -247,6 +247,18 @@ namespace Fcs {
             return this.ServiceClient.Post(catalogProductCategory, headers, null);
         }
 
+        public Promo PublishPromo(Promo promo) {
+            this.Auth();
+            Headers headers = this.GetHeaders();
+            return this.ServiceClient.Post(promo, headers, null);
+        }
+
+        public PromoCode PublishPromoCode(PromoCode promoCode) {
+            this.Auth();
+            Headers headers = this.GetHeaders();
+            return this.ServiceClient.Post(promoCode, headers, null);
+        }
+
         private Headers GetHeaders() {
             var headers = new Headers
                           {
