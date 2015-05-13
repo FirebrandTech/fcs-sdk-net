@@ -2,12 +2,11 @@
 
 using System;
 using System.Collections.Generic;
-using Fcs.Model;
 using ServiceStack;
 
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 
-namespace Cloud.Api.V2.Model {
+namespace Fcs.Model {
     public enum UserAddressType {
         Billing,
         Shipping
