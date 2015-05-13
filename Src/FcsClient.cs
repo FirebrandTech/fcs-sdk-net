@@ -24,7 +24,6 @@ namespace Fcs {
         private static Access _appAccess;
         private readonly FcsConfig _config;
         private IServiceClient _client;
-        private IContext _context;
         private Access _access;
 
         // ReSharper disable once MemberCanBePrivate.Global
@@ -36,6 +35,7 @@ namespace Fcs {
         // ReSharper disable once MemberCanBePrivate.Global
         public FcsClient(FcsConfig config) {
             this._config = config;
+            this.Context = new AspNetContext();
             this.ServiceClientFactory = new JsonServiceClientFactory();
         }
 
@@ -61,13 +61,7 @@ namespace Fcs {
             get { return _logger ?? (_logger = LogManager.GetLogger("FcsClient")); }
         }
 
-        public IContext Context {
-            private get {
-                if (this._context != null) return this._context;
-                return this._context = new AspNetContext();
-            }
-            set { this._context = value; }
-        }
+        public IContext Context { private get; set; }
 
         // ReSharper disable once MemberCanBePrivate.Global
         public IServiceClientFactory ServiceClientFactory { get; set; }
@@ -130,7 +124,7 @@ namespace Fcs {
         public AuthResponse Auth(AuthRequest request, bool ignoreContextUser = false) {
             lock (Sync) {
                 if (request.Token.IsNullOrWhiteSpace()) {
-                    request.Token = this._context.GetRequestParam(this._config.AccessParam);
+                    request.Token = this.Context.GetRequestParam(this._config.TokenParam);
                 }
 
                 var access = request.Token.IsFull() ? null : this.GetAccess();

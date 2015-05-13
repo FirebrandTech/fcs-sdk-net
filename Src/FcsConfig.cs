@@ -1,18 +1,17 @@
 ﻿// Copyright © 2010-2015 Firebrand Technologies
 
 using System;
-using System.Collections.Specialized;
 using System.Configuration;
 using System.Web;
 
 namespace Fcs {
     public class FcsConfig {
         public FcsConfig() {
-            NameValueCollection settings = ConfigurationManager.AppSettings;
-            string clientId = settings["FcsClientId"] ?? Environment.GetEnvironmentVariable("FcsClientId");
-            string clientSecret = settings["FcsClientSecret"] ?? Environment.GetEnvironmentVariable("FcsClientSecret");
-            string app = settings["FcsApp"] ?? Environment.GetEnvironmentVariable("FcsApp");
-            string url = settings["FcsApiUrl"] ?? Environment.GetEnvironmentVariable("FcsAppUrl");
+            var settings = ConfigurationManager.AppSettings;
+            var clientId = settings["FcsClientId"] ?? Environment.GetEnvironmentVariable("FcsClientId");
+            var clientSecret = settings["FcsClientSecret"] ?? Environment.GetEnvironmentVariable("FcsClientSecret");
+            var app = settings["FcsApp"] ?? Environment.GetEnvironmentVariable("FcsApp");
+            var url = settings["FcsApiUrl"] ?? Environment.GetEnvironmentVariable("FcsAppUrl");
 
             if (string.IsNullOrWhiteSpace(clientId) ||
                 string.IsNullOrWhiteSpace(clientSecret)) {
@@ -30,13 +29,13 @@ namespace Fcs {
         public string ClientId { get; private set; }
         public string ClientSecret { get; private set; }
         public string TokenCookie { get; private set; }
-        public string AccessParam { get; private set; }
+        public string TokenParam { get; private set; }
         public string SessionCookie { get; private set; }
         public string UserCookie { get; private set; }
 
         private void Init(string clientId, string clientSecret, string app, string apiUrl) {
             if (apiUrl != null && apiUrl.ToLower() == "auto") {
-                HttpRequest req = HttpContext.Current.Request;
+                var req = HttpContext.Current.Request;
                 if (req.ApplicationPath == null) return;
                 apiUrl = req.Url.Scheme + "://" +
                          req.Url.Authority +
@@ -50,7 +49,7 @@ namespace Fcs {
             this.TokenCookie = this.App + "-token";
             this.UserCookie = this.App + "-user";
             this.SessionCookie = this.App + "-session";
-            this.AccessParam = "access";
+            this.TokenParam = "token";
         }
     }
 }

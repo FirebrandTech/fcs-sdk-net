@@ -66,9 +66,8 @@ namespace Fcs.Framework {
         }
 
         public string GetRequestParam(string name) {
-            return HttpContext.Current == null 
-                ? null 
-                : HttpContext.Current.Request.Params.Get(name);
+            if (HttpContext.Current == null) return null;
+            return HttpContext.Current.Request.Params.Get(name);
         }
 
         public HttpCookie GetRequestCookie(string name) {

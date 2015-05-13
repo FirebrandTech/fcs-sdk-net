@@ -41,7 +41,7 @@ namespace CredentialsMvcTests {
         //}
 
         private void Application_PreRequestHandlerExecute(object sender, EventArgs e) {
-            FcsClient.EnsureAuthorized(true);
+            FcsClient.EnsureAuthorized();
         }
     }
 }
