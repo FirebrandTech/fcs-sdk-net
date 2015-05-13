@@ -5,9 +5,9 @@ using System.Web;
 using Cloud.Api.V2.Model;
 using Fcs.Framework;
 using Fcs.Model;
-using ServiceStack;
+using JWT;
 using ServiceStack.Logging;
-using IServiceClient = Fcs.Framework.IServiceClient;
+using StringExtensions = ServiceStack.StringExtensions;
 
 // ReSharper disable UnusedMember.Global
 
@@ -21,11 +21,11 @@ namespace Fcs {
         private static readonly object Sync = new object();
         private static bool _applicationInitialized;
         private static ILog _logger;
-        private static FcsToken _appToken;
+        private static Access _appAccess;
         private readonly FcsConfig _config;
         private IServiceClient _client;
         private IContext _context;
-        private FcsToken _token;
+        private Access _access;
 
         // ReSharper disable once MemberCanBePrivate.Global
         public FcsClient() : this(new FcsConfig()) {}
@@ -49,12 +49,12 @@ namespace Fcs {
             get { return this._config; }
         }
 
-        public FcsToken Token {
-            get { return this._token; }
+        public Access Access {
+            get { return this._access; }
         }
 
-        public static FcsToken AppToken {
-            get { return _appToken; }
+        public static Access AppAccess {
+            get { return _appAccess; }
         }
 
         private static ILog Logger {
@@ -93,7 +93,7 @@ namespace Fcs {
         }
 
         public static void EnsureAuthorized(bool ignoreContextUser = false) {
-            Uri url = HttpContext.Current.Request.Url;
+            var url = HttpContext.Current.Request.Url;
             if (url.PathAndQuery.Contains("/__browserLink/")) return;
             Logger.DebugFormat("EnsureAuthorized: {0}", url);
 
@@ -103,7 +103,7 @@ namespace Fcs {
         }
 
         public static void Reset() {
-            _appToken = null;
+            _appAccess = null;
         }
 
         protected virtual void Dispose(bool disposing) {
@@ -129,44 +129,59 @@ namespace Fcs {
 
         public AuthResponse Auth(AuthRequest request, bool ignoreContextUser = false) {
             lock (Sync) {
-                FcsToken token = this.GetToken();
+                if (request.Token.IsNullOrWhiteSpace()) {
+                    request.Token = this._context.GetRequestParam(this._config.AccessParam);
+                }
 
-                if (token == null) {
+                var access = request.Token.IsFull() ? null : this.GetAccess();
+
+                if (access == null && request.Token.IsNullOrWhiteSpace()) {
+                    // There is no token.  Assume this is at least an App Auth or maybe a fast-tracked User Auth.
                     request.ClientId = this._config.ClientId;
                     request.ClientSecret = this._config.ClientSecret;
                 }
                 if (request.UserName.IsNullOrWhiteSpace()) {
-                    request.UserName = this.Context.CurrentUserName ?? (token ?? new FcsToken()).User;
+                    // No UserName passed in.  Check the context for the current UserName.
+                    request.UserName = this.Context.CurrentUserName ?? (access ?? new Access()).User;
                 }
 
-                if (token != null &&
-                    !string.Equals(token.User, request.UserName, StringComparison.OrdinalIgnoreCase) &&
+                if (access != null &&
+                    !string.Equals(access.User, request.UserName, StringComparison.OrdinalIgnoreCase) &&
                     !ignoreContextUser) {
+                    // We have a token, but the UserName does not match that of the found token.
+                    // This will be a User Auth with a foundational App or User auth token.
                     request.ClientId = null;
                     request.ClientSecret = null;
-                    token = null;
+                    access = null;
                 }
 
-                if (token == null) {
-                    Headers requestHeaders = this.GetHeaders();
+                if (access == null) {
+                    // We have determined that an Auth is necessary. Proceed...
+                    var requestHeaders = this.GetHeaders();
                     Logger.DebugFormat("POST AUTH REQUEST: {0}", StringExtensions.ToJsv(request));
                     Logger.DebugFormat("POST AUTH REQUEST HEADERS: {0}", StringExtensions.ToJsv(requestHeaders));
 
                     var responseHeaders = new Headers();
-                    AuthResponse response = this.ServiceClient.Post(request, requestHeaders, responseHeaders);
+                    var response = this.ServiceClient.Post(request, requestHeaders, responseHeaders);
                     Logger.DebugFormat("POST AUTH RESPONSE: {0}", StringExtensions.ToJsv(response));
                     Logger.DebugFormat("POST AUTH RESPONSE HEADERS: {0}", StringExtensions.ToJsv(responseHeaders));
-                    token = new FcsToken(response);
+                    access = new Access
+                             {
+                                 Token = response.Token,
+                                 Expires = response.Expires ?? DateTime.MinValue,
+                                 User = response.UserName,
+                                 Session = response.Session
+                             };
                 }
 
-                this.SaveToken(token);
+                this.SaveAccess(access);
 
                 return new AuthResponse
                        {
-                           Token = token.Value,
-                           Expires = token.Expires,
-                           Session = token.Session,
-                           UserName = token.User
+                           Token = access.Token,
+                           Expires = access.Expires,
+                           Session = access.Session,
+                           UserName = access.User,
                        };
             }
         }
@@ -174,26 +189,32 @@ namespace Fcs {
         /// <summary>
         ///     Save the token information in the following places:  static, instance, and cookies.
         /// </summary>
-        /// <param name="token">token information</param>
-        private void SaveToken(FcsToken token) {
-            this._token = token;
+        /// <param name="access">token information</param>
+        private void SaveAccess(Access access) {
+            this._access = access;
 
-            if (token.User.IsNullOrWhiteSpace()) {
-                // Token is app token.  Save it as the static appToken to minimize token creation.
-                _appToken = token;
+            if (access.User.IsNullOrWhiteSpace()) {
+                // Access is app token.  Save it as the static appToken to minimize token creation.
+                _appAccess = access;
             }
-            this.Context.SetResponseCookie(this._config.TokenCookie, token.SerializeToken(), null);
-            if (token.Session.IsFull()) {
+            this.Context.SetResponseCookie(this._config.TokenCookie, access.Token, null);
+            if (access.Session.IsFull()) {
                 this.Context.SetResponseCookie(this._config.SessionCookie,
-                                               token.Session,
+                                               access.Session,
                                                DateTime.UtcNow.AddDays(SessionExpiryDays));
             }
         }
 
         public AuthResponse Unauth() {
-            AuthResponse response = this.ServiceClient.Delete(new AuthRequest(), this.GetHeaders(), null);
-            var token = new FcsToken(response);
-            this.SaveToken(token);
+            var response = this.ServiceClient.Delete(new AuthRequest(), this.GetHeaders(), null);
+            var token = new Access
+                        {
+                            Token = response.Token,
+                            Expires = response.Expires ?? DateTime.MinValue,
+                            User = response.UserName,
+                            Session = response.Session
+                        };
+            this.SaveAccess(token);
             return response;
         }
 
@@ -204,31 +225,31 @@ namespace Fcs {
 
         public Catalog PublishCatalog(Catalog catalog) {
             this.Auth();
-            Headers headers = this.GetHeaders();
+            var headers = this.GetHeaders();
             return this.ServiceClient.Post(catalog, headers, null);
         }
 
         public CatalogComment PublishCatalogComment(CatalogComment catalogComment) {
             this.Auth();
-            Headers headers = this.GetHeaders();
+            var headers = this.GetHeaders();
             return this.ServiceClient.Post(catalogComment, headers, null);
         }
 
         public CatalogCategory PublishCatalogCategory(CatalogCategory catalogCategory) {
             this.Auth();
-            Headers headers = this.GetHeaders();
+            var headers = this.GetHeaders();
             return this.ServiceClient.Post(catalogCategory, headers, null);
         }
 
         public CatalogProduct PublishCatalogProduct(CatalogProduct catalogProduct) {
             this.Auth();
-            Headers headers = this.GetHeaders();
+            var headers = this.GetHeaders();
             return this.ServiceClient.Post(catalogProduct, headers, null);
         }
 
         public CatalogProductCategory PublishCatalogProductCategory(CatalogProductCategory catalogProductCategory) {
             this.Auth();
-            Headers headers = this.GetHeaders();
+            var headers = this.GetHeaders();
             return this.ServiceClient.Post(catalogProductCategory, headers, null);
         }
 
@@ -238,39 +259,46 @@ namespace Fcs {
                               {AppHeader, this._config.App}
                           };
 
-            HttpCookie session = this.Context.GetRequestCookie(this._config.SessionCookie);
+            var session = this.Context.GetRequestCookie(this._config.SessionCookie);
             if (session != null && session.Value.IsFull()) {
                 headers.Add(SessionHeader, session.Value);
             }
 
-            FcsToken token = this.GetToken(); // Call this to update this._user from cookie if possible.
+            var token = this.GetAccess(); // Call this to update this._user from cookie if possible.
             if (token == null) return headers;
-            headers.Add("Authorization", String.Format("Bearer {0}", token.Value));
+            headers.Add("Authorization", String.Format("Bearer {0}", token.Token));
             //headers.Add("X-NoRedirect", "true");
             return headers;
         }
 
-        private FcsToken GetToken() {
-            HttpCookie tokenCookie = this.Context.GetRequestCookie(this._config.TokenCookie);
-            HttpCookie sessionCookie = this.Context.GetRequestCookie(this._config.SessionCookie);
+        private Access GetAccess() {
+            var tokenCookie = this.Context.GetRequestCookie(this._config.TokenCookie);
+            var sessionCookie = this.Context.GetRequestCookie(this._config.SessionCookie);
             //var userCookie = this.Context.GetRequestCookie(this._config.UserCookie);
-            FcsToken token = this._token;
-            if (token != null && token.IsValid()) return token;
+            var access = this._access;
+            if (access != null && access.Expires > DateTime.UtcNow) return access;
 
             if (tokenCookie != null &&
                 tokenCookie.Value.IsFull()) {
                 //var user = userCookie != null && userCookie.Value.IsFull() ? userCookie.Value : null;
-                string session = sessionCookie != null && sessionCookie.Value.IsFull() ? sessionCookie.Value : null;
+                var session = sessionCookie != null && sessionCookie.Value.IsFull() ? sessionCookie.Value : null;
 
-                token = new FcsToken(tokenCookie.Value, session);
-                if (token.IsValid()) return token;
+                var token = JsonWebToken.DecodeToObject<AuthToken>(tokenCookie.Value, "UNKNOWN", false);
+                access = new Access
+                         {
+                             Token = tokenCookie.Value,
+                             Expires = token.Expires,
+                             Session = token.SessionId ?? session,
+                             User = token.UserName
+                         };
+                if (access.Expires > DateTime.UtcNow) return access;
             }
 
             //token = this.Context.GetSessionItem(SessionKey) as FcsToken;
             //if (token != null && token.IsValid()) return token;
 
-            token = _appToken;
-            if (token != null && token.IsValid()) return token;
+            access = _appAccess;
+            if (access != null && access.Expires > DateTime.UtcNow) return access;
 
             return null;
         }

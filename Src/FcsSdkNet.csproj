@@ -52,6 +52,9 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="JWT">
+      <HintPath>..\..\Harvard\Cloud.Library\JWT.dll</HintPath>
+    </Reference>
     <Reference Include="ServiceStack.Client, Version=4.0.38.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\ServiceStack.Client.4.0.38\lib\net40\ServiceStack.Client.dll</HintPath>
@@ -68,6 +71,7 @@
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Net" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -78,7 +82,7 @@
   <ItemGroup>
     <Compile Include="FcsClient.cs" />
     <Compile Include="FcsConfig.cs" />
-    <Compile Include="FcsToken.cs" />
+    <Compile Include="Access.cs" />
     <Compile Include="Framework\FrameworkExtensions.cs" />
     <Compile Include="Framework\IContext.cs" />
     <Compile Include="Framework\IServiceClient.cs" />
