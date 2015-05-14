@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
+using Fcs.Model;
 using ServiceStack;
 
 namespace Fcs.Framework {
@@ -16,6 +17,10 @@ namespace Fcs.Framework {
         TResponse Delete<TResponse>(IReturn<TResponse> request,
                                     Headers requestHeaders,
                                     Headers responseHeaders);
+
+        TResponse Post<TResponse>(object request,
+                                                  Headers requestHeaders,
+                                                  Headers responseHeaders);
     }
 
     public interface IServiceClientFactory {
@@ -46,6 +51,14 @@ namespace Fcs.Framework {
             if (requestHeaders != null) this._client.RequestFilter = RequestFilter(requestHeaders);
             if (responseHeaders != null) this._client.ResponseFilter = ResponseFilter(responseHeaders);
             return this._client.Post(request);
+        }
+
+        public TResponse Post<TResponse>(object request,
+                                 Headers requestHeaders,
+                                 Headers responseHeaders) {
+            if (requestHeaders != null) this._client.RequestFilter = RequestFilter(requestHeaders);
+            if (responseHeaders != null) this._client.ResponseFilter = ResponseFilter(responseHeaders);
+            return this._client.Post<TResponse>(request);
         }
 
         public TResponse Delete<TResponse>(IReturn<TResponse> request,

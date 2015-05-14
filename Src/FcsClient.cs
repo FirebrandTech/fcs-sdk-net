@@ -259,10 +259,29 @@ namespace Fcs {
             return this.ServiceClient.Post(promoCode, headers, null);
         }
 
-        public User UpdateUser(User user) {
+        public AuthResponse Register(User user) {
             this.Auth();
-            var headers = this.GetHeaders();
-            return this.ServiceClient.Post(user, headers, null);
+            var requestHeaders = this.GetHeaders();
+            var responseHeaders = new Headers();
+            var response = this.ServiceClient.Post<AuthResponse>(user, requestHeaders, responseHeaders);
+            Logger.DebugFormat("POST REGISTER RESPONSE: {0}", response.ToJsv());
+            Logger.DebugFormat("POST REGISTER RESPONSE HEADERS: {0}", responseHeaders.ToJsv());
+            var access = new Access
+                         {
+                             Token = response.Token,
+                             Expires = response.Expires ?? DateTime.MinValue,
+                             User = response.UserName,
+                             Session = response.Session
+                         };
+            this.SaveAccess(access);
+
+            return new AuthResponse
+                   {
+                       Token = access.Token,
+                       Expires = access.Expires,
+                       Session = access.Session,
+                       UserName = access.User,
+                   };
         }
 
         private Headers GetHeaders() {

@@ -48,7 +48,7 @@ namespace Fcs.Model {
     [Route("/users/{id}", "GET", Summary = "Get User")]
     [Route("/users/{id}", "POST,PUT", Summary = "Update User")]
     [Route("/users/{id}", "DELETE", Summary = "Delete User")]
-    public class User : IPassword, IIdentifiable, IReturn<User> {
+    public class User : IPassword, IIdentifiable {
         public string Tag { get; set; }
         public string Role { get; set; }
         public string Name { get; set; }
