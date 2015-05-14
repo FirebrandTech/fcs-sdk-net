@@ -161,7 +161,7 @@ namespace Fcs {
                     access = new Access
                              {
                                  Token = response.Token,
-                                 Expires = response.Expires ?? DateTime.MinValue,
+                                 Expires = (response.Expires ?? DateTime.MinValue).ToUniversalTime(),
                                  User = response.UserName,
                                  Session = response.Session
                              };
