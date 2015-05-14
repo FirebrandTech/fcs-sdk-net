@@ -5,9 +5,8 @@ using System.Web;
 using Fcs.Framework;
 using Fcs.Model;
 using JWT;
-using ServiceStack;
 using ServiceStack.Logging;
-using IServiceClient = Fcs.Framework.IServiceClient;
+using StringExtensions = ServiceStack.StringExtensions;
 
 // ReSharper disable UnusedMember.Global
 
@@ -111,14 +110,14 @@ namespace Fcs {
             GC.SuppressFinalize(this);
         }
 
-        public void Auth(string userName = null, bool ignoreContextUser = false) {
-            this.Auth(new AuthRequest
-                      {
-                          ClientId = this._config.ClientId,
-                          ClientSecret = this._config.ClientSecret,
-                          UserName = userName
-                      },
-                      ignoreContextUser);
+        public AuthResponse Auth(string userName = null, bool ignoreContextUser = false) {
+            return this.Auth(new AuthRequest
+                             {
+                                 ClientId = this._config.ClientId,
+                                 ClientSecret = this._config.ClientSecret,
+                                 UserName = userName
+                             },
+                             ignoreContextUser);
         }
 
         public AuthResponse Auth(AuthRequest request, bool ignoreContextUser = false) {
@@ -264,8 +263,8 @@ namespace Fcs {
             var requestHeaders = this.GetHeaders();
             var responseHeaders = new Headers();
             var response = this.ServiceClient.Post<AuthResponse>(user, requestHeaders, responseHeaders);
-            Logger.DebugFormat("POST REGISTER RESPONSE: {0}", response.ToJsv());
-            Logger.DebugFormat("POST REGISTER RESPONSE HEADERS: {0}", responseHeaders.ToJsv());
+            Logger.DebugFormat("POST REGISTER RESPONSE: {0}", StringExtensions.ToJsv(response));
+            Logger.DebugFormat("POST REGISTER RESPONSE HEADERS: {0}", StringExtensions.ToJsv(responseHeaders));
             var access = new Access
                          {
                              Token = response.Token,
