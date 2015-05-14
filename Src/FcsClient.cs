@@ -5,8 +5,9 @@ using System.Web;
 using Fcs.Framework;
 using Fcs.Model;
 using JWT;
+using ServiceStack;
 using ServiceStack.Logging;
-using StringExtensions = ServiceStack.StringExtensions;
+using IServiceClient = Fcs.Framework.IServiceClient;
 
 // ReSharper disable UnusedMember.Global
 
@@ -22,8 +23,8 @@ namespace Fcs {
         private static ILog _logger;
         private static Access _appAccess;
         private readonly FcsConfig _config;
-        private IServiceClient _client;
         private Access _access;
+        private IServiceClient _client;
 
         // ReSharper disable once MemberCanBePrivate.Global
         public FcsClient() : this(new FcsConfig()) {}
@@ -248,14 +249,20 @@ namespace Fcs {
 
         public Promo PublishPromo(Promo promo) {
             this.Auth();
-            Headers headers = this.GetHeaders();
+            var headers = this.GetHeaders();
             return this.ServiceClient.Post(promo, headers, null);
         }
 
         public PromoCode PublishPromoCode(PromoCode promoCode) {
             this.Auth();
-            Headers headers = this.GetHeaders();
+            var headers = this.GetHeaders();
             return this.ServiceClient.Post(promoCode, headers, null);
+        }
+
+        public User UpdateUser(User user) {
+            this.Auth();
+            var headers = this.GetHeaders();
+            return this.ServiceClient.Post(user, headers, null);
         }
 
         private Headers GetHeaders() {

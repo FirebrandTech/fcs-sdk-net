@@ -43,12 +43,12 @@ namespace Fcs.Model {
         public List<KeyValue> States { get; set; }
     }
 
-    [Route("/users", "PUT", Summary = "Register myself / Create User")]
+    [Route("/users", "POST,PUT", Summary = "Register myself / Create User")]
     [Route("/users/me", "GET", Summary = "Get Me")]
     [Route("/users/{id}", "GET", Summary = "Get User")]
-    [Route("/users/{id}", "PUT", Summary = "Update User")]
+    [Route("/users/{id}", "POST,PUT", Summary = "Update User")]
     [Route("/users/{id}", "DELETE", Summary = "Delete User")]
-    public class User : IPassword, IIdentifiable {
+    public class User : IPassword, IIdentifiable, IReturn<User> {
         public string Tag { get; set; }
         public string Role { get; set; }
         public string Name { get; set; }
@@ -63,6 +63,7 @@ namespace Fcs.Model {
         public List<Country> Countries { get; set; }
         public string Phone { get; set; }
         public string GravatarUri { get; set; }
+        public bool? OptInMail { get; set; }
 
         [ApiMember(Name = "id", ParameterType = "path")]
         public Guid? Id { get; set; }
