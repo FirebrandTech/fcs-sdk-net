@@ -49,7 +49,7 @@ namespace Fcs {
             this.TokenCookie = this.App + "-token";
             this.UserCookie = this.App + "-user";
             this.SessionCookie = this.App + "-session";
-            this.TokenParam = "token";
+            this.TokenParam = "fcs-token";
         }
     }
 }
