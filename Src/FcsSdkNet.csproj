@@ -86,6 +86,7 @@
     <Compile Include="Framework\FrameworkExtensions.cs" />
     <Compile Include="Framework\IContext.cs" />
     <Compile Include="Framework\IServiceClient.cs" />
+    <Compile Include="Framework\ServiceStackJsonSerializer.cs" />
     <Compile Include="Model\Auth.cs" />
     <Compile Include="Model\Cart.cs" />
     <Compile Include="Model\Catalogs.cs" />

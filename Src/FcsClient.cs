@@ -25,6 +25,9 @@ namespace Fcs {
         private Access _access;
         private IServiceClient _client;
 
+        static FcsClient() {
+            JsonWebToken.JsonSerializer = new ServiceStackJsonSerializer();
+        }
         // ReSharper disable once MemberCanBePrivate.Global
         public FcsClient() : this(new FcsConfig()) {}
 
