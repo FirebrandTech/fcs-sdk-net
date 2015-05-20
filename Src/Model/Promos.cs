@@ -64,6 +64,8 @@ namespace Fcs.Model {
         public DateTime? ExpirationDate { get; set; }
         public Decimal? MaxDiscountAmount { get; set; }
         public int? MaxTimesAllowed { get; set; }
+        public Decimal? DiscountPercent { get; set; }
+        public Decimal? DiscountAmount { get; set; }
         public List<PromoCodeProduct> Products { get; set; } 
         public bool Inactive { get; set; }
     }
