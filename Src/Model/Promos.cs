@@ -26,6 +26,7 @@ namespace Fcs.Model {
     public class Promo : IReturn<Promo> {
         public Guid? Id { get; set; }
         public string ReferenceId { get; set; }
+        public string App { get; set; }
         public string Name { get; set; }
         public DateTime? EffectiveDate { get; set; }
         public DateTime? ExpirationDate { get; set; }
