@@ -26,6 +26,7 @@ namespace Fcs.Model {
     public class Promo : IReturn<Promo> {
         public Guid? Id { get; set; }
         public string ReferenceId { get; set; }
+        public string App { get; set; }
         public string Name { get; set; }
         public DateTime? EffectiveDate { get; set; }
         public DateTime? ExpirationDate { get; set; }
@@ -64,6 +65,8 @@ namespace Fcs.Model {
         public DateTime? ExpirationDate { get; set; }
         public Decimal? MaxDiscountAmount { get; set; }
         public int? MaxTimesAllowed { get; set; }
+        public Decimal? DiscountPercent { get; set; }
+        public Decimal? DiscountAmount { get; set; }
         public List<PromoCodeProduct> Products { get; set; } 
         public bool Inactive { get; set; }
     }
