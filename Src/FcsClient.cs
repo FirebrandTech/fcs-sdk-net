@@ -14,9 +14,9 @@ namespace Fcs {
     // ReSharper disable once ClassWithVirtualMembersNeverInherited.Global
     public class FcsClient : IDisposable {
         private const string AppHeader = "X-Fcs-App";
-        private const string SessionHeader = "X-Fcs-Session";
+        //private const string SessionHeader = "X-Fcs-Session";
         //private const string SessionKey = "FCS-TOKEN";
-        private const int SessionExpiryDays = 14;
+        //private const int SessionExpiryDays = 14;
         private static readonly object Sync = new object();
         private static bool _applicationInitialized;
         private static ILog _logger;
@@ -194,11 +194,11 @@ namespace Fcs {
                 _appAccess = access;
             }
             this.Context.SetResponseCookie(this._config.TokenCookie, access.Token, null);
-            if (access.Session.IsFull()) {
-                this.Context.SetResponseCookie(this._config.SessionCookie,
-                                               access.Session,
-                                               DateTime.UtcNow.AddDays(SessionExpiryDays));
-            }
+            //if (access.Session.IsFull()) {
+            //    this.Context.SetResponseCookie(this._config.SessionCookie,
+            //                                   access.Session,
+            //                                   DateTime.UtcNow.AddDays(SessionExpiryDays));
+            //}
         }
 
         public AuthResponse Unauth() {
@@ -292,10 +292,10 @@ namespace Fcs {
                               {AppHeader, this._config.App}
                           };
 
-            var session = this.Context.GetRequestCookie(this._config.SessionCookie);
-            if (session != null && session.Value.IsFull()) {
-                headers.Add(SessionHeader, session.Value);
-            }
+            //var session = this.Context.GetRequestCookie(this._config.SessionCookie);
+            //if (session != null && session.Value.IsFull()) {
+            //    headers.Add(SessionHeader, session.Value);
+            //}
 
             var token = this.GetAccess(); // Call this to update this._user from cookie if possible.
             if (token == null) return headers;
