@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
-using Fcs.Model;
 using ServiceStack;
 
 namespace Fcs.Framework {
@@ -19,8 +18,8 @@ namespace Fcs.Framework {
                                     Headers responseHeaders);
 
         TResponse Post<TResponse>(object request,
-                                                  Headers requestHeaders,
-                                                  Headers responseHeaders);
+                                  Headers requestHeaders,
+                                  Headers responseHeaders);
     }
 
     public interface IServiceClientFactory {
@@ -54,8 +53,8 @@ namespace Fcs.Framework {
         }
 
         public TResponse Post<TResponse>(object request,
-                                 Headers requestHeaders,
-                                 Headers responseHeaders) {
+                                         Headers requestHeaders,
+                                         Headers responseHeaders) {
             if (requestHeaders != null) this._client.RequestFilter = RequestFilter(requestHeaders);
             if (responseHeaders != null) this._client.ResponseFilter = ResponseFilter(responseHeaders);
             return this._client.Post<TResponse>(request);
@@ -85,7 +84,7 @@ namespace Fcs.Framework {
             return r => {
                        if (headers == null) return;
                        foreach (string key in r.Headers) {
-                           string value = r.Headers[key];
+                           var value = r.Headers[key];
                            headers[key] = value;
                        }
                    };

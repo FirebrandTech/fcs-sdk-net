@@ -306,7 +306,7 @@ namespace Fcs {
 
         private Access GetAccess() {
             var tokenCookie = this.Context.GetRequestCookie(this._config.TokenCookie);
-            var sessionCookie = this.Context.GetRequestCookie(this._config.SessionCookie);
+            //var sessionCookie = this.Context.GetRequestCookie(this._config.SessionCookie);
             //var userCookie = this.Context.GetRequestCookie(this._config.UserCookie);
             var access = this._access;
             if (access != null && access.Expires > DateTime.UtcNow) return access;
@@ -314,14 +314,14 @@ namespace Fcs {
             if (tokenCookie != null &&
                 tokenCookie.Value.IsFull()) {
                 //var user = userCookie != null && userCookie.Value.IsFull() ? userCookie.Value : null;
-                var session = sessionCookie != null && sessionCookie.Value.IsFull() ? sessionCookie.Value : null;
+                //var session = sessionCookie != null && sessionCookie.Value.IsFull() ? sessionCookie.Value : null;
 
                 var token = JsonWebToken.DecodeToObject<AuthToken>(tokenCookie.Value, "UNKNOWN", false);
                 access = new Access
                          {
                              Token = tokenCookie.Value,
                              Expires = token.Expires,
-                             Session = token.SessionId ?? session,
+                             Session = token.SessionId,
                              User = token.UserName
                          };
                 if (access.Expires > DateTime.UtcNow) return access;
