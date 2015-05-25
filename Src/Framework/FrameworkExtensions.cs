@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Web;
 
 namespace Fcs.Framework {
     public static class FrameworkExtensions {
@@ -36,6 +37,21 @@ namespace Fcs.Framework {
                 return null;
             }
             return dateTime.Value.ToUniversalTime();
+        }
+
+        public static string RemoveParam(this Uri uri, string key) {
+            // this gets all the query string key value pairs as a collection
+            var newQueryString = HttpUtility.ParseQueryString(uri.Query);
+
+            // this removes the key if exists
+            newQueryString.Remove(key);
+
+            // this gets the page path from root without QueryString
+            var pagePathWithoutQueryString = uri.GetLeftPart(UriPartial.Path);
+
+            return newQueryString.Count > 0
+                ? String.Format("{0}?{1}", pagePathWithoutQueryString, newQueryString)
+                : pagePathWithoutQueryString;
         }
 
         public static Guid? ToGuid(this string value) {

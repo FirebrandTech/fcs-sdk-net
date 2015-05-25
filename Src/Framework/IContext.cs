@@ -16,6 +16,7 @@ namespace Fcs.Framework {
         string GetRequestParam(string name);
         HttpCookie GetRequestCookie(string name);
         void SetResponseCookie(string name, string value, DateTime? expires);
+        Uri GetRequestUri();
         void Redirect(string url);
     }
 
@@ -68,6 +69,11 @@ namespace Fcs.Framework {
         public string GetRequestParam(string name) {
             if (HttpContext.Current == null) return null;
             return HttpContext.Current.Request.Params.Get(name);
+        }
+
+        public Uri GetRequestUri() {
+            if (HttpContext.Current == null) return null;
+            return HttpContext.Current.Request.Url;
         }
 
         public HttpCookie GetRequestCookie(string name) {

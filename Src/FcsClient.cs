@@ -125,8 +125,9 @@ namespace Fcs {
 
         public AuthResponse Auth(AuthRequest request, bool ignoreContextUser = false) {
             lock (Sync) {
+                var tokenParam = this.Context.GetRequestParam(this._config.TokenParam);
                 if (request.Token.IsNullOrWhiteSpace()) {
-                    request.Token = this.Context.GetRequestParam(this._config.TokenParam);
+                    request.Token = tokenParam;
                 }
 
                 var access = request.Token.IsFull() ? null : this.GetAccess();
@@ -171,6 +172,13 @@ namespace Fcs {
                 }
 
                 this.SaveAccess(access);
+
+                if (tokenParam.IsFull()) {
+                    var uri = this.Context.GetRequestUri();
+                    var url = uri.RemoveParam(this._config.TokenParam);
+                    this.Context.Redirect(url);
+                    return null;
+                }
 
                 return new AuthResponse
                        {
