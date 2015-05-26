@@ -40,8 +40,8 @@ namespace Fcs.Model {
     }
 
     public class CodeName {
+        public CodeName() {}
 
-        public CodeName() { }
         public CodeName(int code, string name) {
             this.Code = code;
             this.Name = name;

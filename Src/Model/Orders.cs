@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using Cloud.Api.V2.Model;
 using ServiceStack;
 
 namespace Fcs.Model {

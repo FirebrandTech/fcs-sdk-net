@@ -2,12 +2,11 @@
 
 using System;
 using System.Collections.Generic;
-using Fcs.Model;
 using ServiceStack;
 
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 
-namespace Cloud.Api.V2.Model {
+namespace Fcs.Model {
     public enum UserAddressType {
         Billing,
         Shipping
@@ -44,10 +43,10 @@ namespace Cloud.Api.V2.Model {
         public List<KeyValue> States { get; set; }
     }
 
-    [Route("/users", "PUT", Summary = "Register myself / Create User")]
+    [Route("/users", "POST,PUT", Summary = "Register myself / Create User")]
     [Route("/users/me", "GET", Summary = "Get Me")]
     [Route("/users/{id}", "GET", Summary = "Get User")]
-    [Route("/users/{id}", "PUT", Summary = "Update User")]
+    [Route("/users/{id}", "POST,PUT", Summary = "Update User")]
     [Route("/users/{id}", "DELETE", Summary = "Delete User")]
     public class User : IPassword, IIdentifiable {
         public string Tag { get; set; }
@@ -64,6 +63,7 @@ namespace Cloud.Api.V2.Model {
         public List<Country> Countries { get; set; }
         public string Phone { get; set; }
         public string GravatarUri { get; set; }
+        public bool? OptInMail { get; set; }
 
         [ApiMember(Name = "id", ParameterType = "path")]
         public Guid? Id { get; set; }

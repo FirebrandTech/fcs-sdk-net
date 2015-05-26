@@ -40,9 +40,9 @@ namespace Fcs.Model {
         }
 
         // For backwards compatibility
-        public string SearchFilter { 
-            get { return this.Search; } 
-            set { this.Search = value; } 
+        public string SearchFilter {
+            get { return this.Search; }
+            set { this.Search = value; }
         }
     }
 }

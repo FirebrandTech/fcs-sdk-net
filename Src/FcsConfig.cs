@@ -29,8 +29,9 @@ namespace Fcs {
         public string ClientId { get; private set; }
         public string ClientSecret { get; private set; }
         public string TokenCookie { get; private set; }
-        public string SessionCookie { get; private set; }
-        public string UserCookie { get; private set; }
+        public string TokenParam { get; private set; }
+        //public string SessionCookie { get; private set; }
+        //public string UserCookie { get; private set; }
 
         private void Init(string clientId, string clientSecret, string app, string apiUrl) {
             if (apiUrl != null && apiUrl.ToLower() == "auto") {
@@ -46,8 +47,9 @@ namespace Fcs {
             this.ClientSecret = clientSecret;
             this.App = app ?? "fcs";
             this.TokenCookie = this.App + "-token";
-            this.UserCookie = this.App + "-user";
-            this.SessionCookie = this.App + "-session";
+            //this.UserCookie = this.App + "-user";
+            //this.SessionCookie = this.App + "-session";
+            this.TokenParam = "fcs-token";
         }
     }
 }

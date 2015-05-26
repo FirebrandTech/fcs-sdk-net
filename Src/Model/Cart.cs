@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using ServiceStack;
 
 namespace Fcs.Model {
-
     public class CountryCode {
         public string Source { get; set; }
         public string Code { get; set; }
@@ -23,7 +22,7 @@ namespace Fcs.Model {
     //                  All references to it...
     [Route("/cart", "GET", Summary = "Get Cart")]
     [Route("/cart/{refresh}", "GET", Summary = "Provide For a boolean to force non-cached cart get")]
-    public class CartRequest{
+    public class CartRequest {
         public bool? RefreshCart { get; set; }
     }
 
@@ -49,8 +48,7 @@ namespace Fcs.Model {
     //                  it is of no use in a GET call.  Please change the Route to
     //                  /cart/payment/location since it is a redirect request.
     [Route("/cart/payment/location", "GET", Summary = "Make Payment")]
-    public class CartMakePayment {
-    }
+    public class CartMakePayment {}
 
     // TODO: REVIEW AD: Can this be a POST?  I know we are getting this from the
     //                  Payment page.  If it can let's make it POST.  

@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using ServiceStack;
 
 namespace Fcs.Model {
-
     /**
     * @api {post} /catalogs/:catalogId/categories Post Catalog Category
     * @apiName PostCatalogCategory
@@ -26,6 +25,7 @@ namespace Fcs.Model {
     * @apiSuccess {string}    updatedBy        UpdatedBy name.
     * @apiSuccess {DateTime}  updatedAt        UpdatedAt date.
     */
+
     [Route("/catalogs/{catalogId}/categories", "POST")]
     public class CatalogCategory : IReturn<CatalogCategory> {
         public Guid? Id { get; set; }
@@ -66,6 +66,7 @@ namespace Fcs.Model {
     * @apiSuccess {string}    updatedBy        UpdatedBy name.
     * @apiSuccess {DateTime}  updatedAt        UpdatedAt date.
     */
+
     [Route("/catalogs/categories/{id}", "GET")]
     public class CatalogCategoryRequest {
         public Guid? Id { get; set; }
@@ -84,6 +85,7 @@ namespace Fcs.Model {
     * @apiSuccess {string}    updatedBy        UpdatedBy name.
     * @apiSuccess {DateTime}  updatedAt        UpdatedAt date.
     */
+
     [Route("/catalogs/{catalogId}/comments", "POST")]
     public class CatalogComment : IReturn<CatalogComment> {
         public Guid? Id { get; set; }
@@ -107,6 +109,7 @@ namespace Fcs.Model {
     * @apiSuccess {string}    updatedBy        UpdatedBy name.
     * @apiSuccess {DateTime}  updatedAt        UpdatedAt date.
     */
+
     [Route("/catalogs/comments/{id}", "GET")]
     [Route("/catalogs/{catalogId}/comments/{typeTag}", "GET")]
     public class CatalogCommentRequest {
@@ -132,6 +135,7 @@ namespace Fcs.Model {
     * @apiSuccess {DateTime}  updatedAt        UpdatedAt date.
     * @apiSuccess {bool}      active           Active catalog.
     */
+
     [Route("/catalogs", "POST")]
     public class Catalog : IReturn<Catalog> {
         public Guid? Id { get; set; }
@@ -160,6 +164,7 @@ namespace Fcs.Model {
     * @apiSuccess {string}    updatedBy        UpdatedBy name.
     * @apiSuccess {DateTime}  updatedAt        UpdatedAt date.
     */
+
     [Route("/catalogs/products/{catalogProductId}/category/{categoryId}", "POST")]
     public class CatalogProductCategory : IReturn<CatalogProductCategory> {
         public Guid? Id { get; set; }
@@ -184,6 +189,7 @@ namespace Fcs.Model {
     * @apiSuccess {string}    updatedBy        UpdatedBy name.
     * @apiSuccess {DateTime}  updatedAt        UpdatedAt date.
     */
+
     [Route("/catalogs/products/categories/{id}", "GET")]
     public class CatalogProductCategoryRequest {
         public Guid? Id { get; set; }
@@ -243,8 +249,9 @@ namespace Fcs.Model {
     *     "pageCount":176
     * }
     */
+
     [Route("/catalogs/{catalogId}/products/{productId}", "POST")]
-    public class CatalogProductDto : IReturn<CatalogProductDto> {
+    public class CatalogProduct : IReturn<CatalogProduct> {
         public Guid? Id { get; set; }
         public Guid? ProductId { get; set; }
         public Guid? CatalogId { get; set; }
@@ -337,6 +344,7 @@ namespace Fcs.Model {
     *     "pageCount":176
     * }
     */
+
     [Route("/catalogs/products/{id}", "GET")]
     [Route("/catalogs/products", "GET")]
     public class CatalogProductRequest {

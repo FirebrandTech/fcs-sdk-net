@@ -2,28 +2,32 @@
 
 using System;
 using System.Web;
-using Cloud.Api.V2.Model;
 using Fcs.Framework;
 using Fcs.Model;
+using JWT;
 using ServiceStack.Logging;
 using StringExtensions = ServiceStack.StringExtensions;
+
+// ReSharper disable UnusedMember.Global
 
 namespace Fcs {
     // ReSharper disable once ClassWithVirtualMembersNeverInherited.Global
     public class FcsClient : IDisposable {
         private const string AppHeader = "X-Fcs-App";
-        private const string SessionHeader = "X-Fcs-Session";
-        private const string SessionKey = "FCS-TOKEN";
-        private const int SessionExpiryDays = 14;
+        //private const string SessionHeader = "X-Fcs-Session";
+        //private const string SessionKey = "FCS-TOKEN";
+        //private const int SessionExpiryDays = 14;
         private static readonly object Sync = new object();
         private static bool _applicationInitialized;
         private static ILog _logger;
-        private static FcsToken _appToken;
+        private static Access _appAccess;
         private readonly FcsConfig _config;
+        private Access _access;
         private IServiceClient _client;
-        private IContext _context;
-        private FcsToken _token;
 
+        static FcsClient() {
+            JsonWebToken.JsonSerializer = new ServiceStackJsonSerializer();
+        }
         // ReSharper disable once MemberCanBePrivate.Global
         public FcsClient() : this(new FcsConfig()) {}
 
@@ -33,6 +37,7 @@ namespace Fcs {
         // ReSharper disable once MemberCanBePrivate.Global
         public FcsClient(FcsConfig config) {
             this._config = config;
+            this.Context = new AspNetContext();
             this.ServiceClientFactory = new JsonServiceClientFactory();
         }
 
@@ -42,25 +47,23 @@ namespace Fcs {
             set { LogManager.LogFactory = value; }
         }
 
-        public FcsToken Token {
-            get { return this._token; }
+        public FcsConfig Config {
+            get { return this._config; }
         }
 
-        public static FcsToken AppToken {
-            get { return _appToken; }
+        public Access Access {
+            get { return this._access; }
+        }
+
+        public static Access AppAccess {
+            get { return _appAccess; }
         }
 
         private static ILog Logger {
             get { return _logger ?? (_logger = LogManager.GetLogger("FcsClient")); }
         }
 
-        public IContext Context {
-            private get {
-                if (this._context != null) return this._context;
-                return this._context = new AspNetContext();
-            }
-            set { this._context = value; }
-        }
+        public IContext Context { private get; set; }
 
         // ReSharper disable once MemberCanBePrivate.Global
         public IServiceClientFactory ServiceClientFactory { get; set; }
@@ -96,7 +99,7 @@ namespace Fcs {
         }
 
         public static void Reset() {
-            _appToken = null;
+            _appAccess = null;
         }
 
         protected virtual void Dispose(bool disposing) {
@@ -110,44 +113,47 @@ namespace Fcs {
             GC.SuppressFinalize(this);
         }
 
-        public void Auth(string userName = null, bool ignoreContextUser = false) {
-            this.Auth(new AuthRequest
-                      {
-                          ClientId = this._config.ClientId,
-                          ClientSecret = this._config.ClientSecret,
-                          UserName = userName
-                      },
-                      ignoreContextUser);
+        public AuthResponse Auth(string userName = null, bool ignoreContextUser = false) {
+            return this.Auth(new AuthRequest
+                             {
+                                 ClientId = this._config.ClientId,
+                                 ClientSecret = this._config.ClientSecret,
+                                 UserName = userName
+                             },
+                             ignoreContextUser);
         }
 
-        // ReSharper disable once MemberCanBePrivate.Global
-        // ReSharper disable once UnusedMethodReturnValue.Global
         public AuthResponse Auth(AuthRequest request, bool ignoreContextUser = false) {
             lock (Sync) {
-                var token = this.GetToken();
-
-                if (request.UserName.IsNullOrWhiteSpace()) {
-                    request.UserName = this.Context.CurrentUserName ?? (token ?? new FcsToken()).User;
+                var tokenParam = this.Context.GetRequestParam(this._config.TokenParam);
+                if (request.Token.IsNullOrWhiteSpace()) {
+                    request.Token = tokenParam;
                 }
 
-                //if (token != null) {
-                //    if (token.User.IsNullOrWhiteSpace()) {
-                //        // The token is an app token.  Clear out client credentials as they are not needed.
-                //        // the app token will be passed on the Authorization header.
-                //        request.ClientId = null;
-                //        request.ClientSecret = null;
-                //    }
-                //    else if (token.User.EqualsIgnoreCase(request.UserName))
-                //}
-                if (token != null &&
-                    !string.Equals(token.User, request.UserName, StringComparison.OrdinalIgnoreCase) &&
+                var access = request.Token.IsFull() ? null : this.GetAccess();
+
+                if (access == null && request.Token.IsNullOrWhiteSpace()) {
+                    // There is no token.  Assume this is at least an App Auth or maybe a fast-tracked User Auth.
+                    request.ClientId = this._config.ClientId;
+                    request.ClientSecret = this._config.ClientSecret;
+                }
+                if (request.UserName.IsNullOrWhiteSpace()) {
+                    // No UserName passed in.  Check the context for the current UserName.
+                    request.UserName = this.Context.CurrentUserName ?? (access ?? new Access()).User;
+                }
+
+                if (access != null &&
+                    !string.Equals(access.User, request.UserName, StringComparison.OrdinalIgnoreCase) &&
                     !ignoreContextUser) {
+                    // We have a token, but the UserName does not match that of the found token.
+                    // This will be a User Auth with a foundational App or User auth token.
                     request.ClientId = null;
                     request.ClientSecret = null;
-                    token = null;
+                    access = null;
                 }
 
-                if (token == null) {
+                if (access == null) {
+                    // We have determined that an Auth is necessary. Proceed...
                     var requestHeaders = this.GetHeaders();
                     Logger.DebugFormat("POST AUTH REQUEST: {0}", StringExtensions.ToJsv(request));
                     Logger.DebugFormat("POST AUTH REQUEST HEADERS: {0}", StringExtensions.ToJsv(requestHeaders));
@@ -156,58 +162,66 @@ namespace Fcs {
                     var response = this.ServiceClient.Post(request, requestHeaders, responseHeaders);
                     Logger.DebugFormat("POST AUTH RESPONSE: {0}", StringExtensions.ToJsv(response));
                     Logger.DebugFormat("POST AUTH RESPONSE HEADERS: {0}", StringExtensions.ToJsv(responseHeaders));
-                    token = CreateToken(response);
+                    access = new Access
+                             {
+                                 Token = response.Token,
+                                 Expires = (response.Expires ?? DateTime.MinValue).ToUniversalTime(),
+                                 User = response.UserName,
+                                 Session = response.Session
+                             };
                 }
 
-                this.SaveToken(token);
+                this.SaveAccess(access);
+
+                if (tokenParam.IsFull()) {
+                    var uri = this.Context.GetRequestUri();
+                    var url = uri.RemoveParam(this._config.TokenParam);
+                    this.Context.Redirect(url);
+                    return null;
+                }
 
                 return new AuthResponse
                        {
-                           Token = token.Value,
-                           Expires = token.Expires,
-                           Session = token.Session
+                           Token = access.Token,
+                           Expires = access.Expires,
+                           Session = access.Session,
+                           UserName = access.User,
                        };
             }
         }
 
-        private static FcsToken CreateToken(AuthResponse response) {
-            return new FcsToken
-                    {
-                        Value = response.Token,
-                        Expires = response.Expires.ToUtc(),
-                        Session = response.Session,
-                        User = response.UserName
-                    };
+        /// <summary>
+        ///     Save the token information in the following places:  static, instance, and cookies.
+        /// </summary>
+        /// <param name="access">token information</param>
+        private void SaveAccess(Access access) {
+            this._access = access;
+
+            if (access.User.IsNullOrWhiteSpace()) {
+                // Access is app token.  Save it as the static appToken to minimize token creation.
+                _appAccess = access;
+            }
+            this.Context.SetResponseCookie(this._config.TokenCookie, access.Token, null);
+            //if (access.Session.IsFull()) {
+            //    this.Context.SetResponseCookie(this._config.SessionCookie,
+            //                                   access.Session,
+            //                                   DateTime.UtcNow.AddDays(SessionExpiryDays));
+            //}
         }
 
-        private void SaveToken(FcsToken token) {
-            this._token = token;
-
-            if (token.User.IsFull()) {
-                this.Context.SetResponseCookie(this._config.UserCookie, token.User, token.Expires ?? DateTime.MinValue);
-            }
-            else {
-                // Token is app token.  Save it as the static appToken to minimize token creation.
-                _appToken = token;
-                this.Context.SetResponseCookie(this._config.UserCookie, "", DateTime.UtcNow.AddYears(-1));
-            }
-            this.Context.SetResponseCookie(this._config.TokenCookie, token.Value, token.Expires ?? DateTime.MinValue);
-            if (token.Session.IsFull()) {
-                this.Context.SetResponseCookie(this._config.SessionCookie,
-                                               token.Session,
-                                               DateTime.UtcNow.AddDays(SessionExpiryDays));
-            }
-        }
-
-        // ReSharper disable once UnusedMember.Global
         public AuthResponse Unauth() {
             var response = this.ServiceClient.Delete(new AuthRequest(), this.GetHeaders(), null);
-            var token = CreateToken(response);
-            this.SaveToken(token);
+            var token = new Access
+                        {
+                            Token = response.Token,
+                            Expires = response.Expires ?? DateTime.MinValue,
+                            User = response.UserName,
+                            Session = response.Session
+                        };
+            this.SaveAccess(token);
             return response;
         }
 
-        // ReSharper disable once UnusedMember.Global
         public object PlaceOrder(Order order) {
             this.Auth(order.UserName ?? (order.User ?? new User()).Email);
             return this.ServiceClient.Post(order, this.GetHeaders(), null);
@@ -231,7 +245,7 @@ namespace Fcs {
             return this.ServiceClient.Post(catalogCategory, headers, null);
         }
 
-        public CatalogProductDto PublishCatalogProduct(CatalogProductDto catalogProduct) {
+        public CatalogProduct PublishCatalogProduct(CatalogProduct catalogProduct) {
             this.Auth();
             var headers = this.GetHeaders();
             return this.ServiceClient.Post(catalogProduct, headers, null);
@@ -243,52 +257,93 @@ namespace Fcs {
             return this.ServiceClient.Post(catalogProductCategory, headers, null);
         }
 
+        public Promo PublishPromo(Promo promo) {
+            this.Auth();
+            var headers = this.GetHeaders();
+            return this.ServiceClient.Post(promo, headers, null);
+        }
+
+        public PromoCode PublishPromoCode(PromoCode promoCode) {
+            this.Auth();
+            var headers = this.GetHeaders();
+            return this.ServiceClient.Post(promoCode, headers, null);
+        }
+
+        public AuthResponse Register(User user) {
+            this.Auth();
+            var requestHeaders = this.GetHeaders();
+            var responseHeaders = new Headers();
+            var response = this.ServiceClient.Post<AuthResponse>(user, requestHeaders, responseHeaders);
+            Logger.DebugFormat("POST REGISTER RESPONSE: {0}", StringExtensions.ToJsv(response));
+            Logger.DebugFormat("POST REGISTER RESPONSE HEADERS: {0}", StringExtensions.ToJsv(responseHeaders));
+            var access = new Access
+                         {
+                             Token = response.Token,
+                             Expires = (response.Expires ?? DateTime.MinValue).ToUniversalTime(),
+                             User = response.UserName,
+                             Session = response.Session
+                         };
+            this.SaveAccess(access);
+
+            return new AuthResponse
+                   {
+                       Token = access.Token,
+                       Expires = access.Expires,
+                       Session = access.Session,
+                       UserName = access.User,
+                   };
+        }
+
         private Headers GetHeaders() {
             var headers = new Headers
                           {
                               {AppHeader, this._config.App}
                           };
 
-            var session = this.Context.GetRequestCookie(this._config.SessionCookie);
-            if (session != null && session.Value.IsFull()) {
-                headers.Add(SessionHeader, session.Value);
-            }
+            //var session = this.Context.GetRequestCookie(this._config.SessionCookie);
+            //if (session != null && session.Value.IsFull()) {
+            //    headers.Add(SessionHeader, session.Value);
+            //}
 
-            var token = this.GetToken(); // Call this to update this._user from cookie if possible.
+            var token = this.GetAccess(); // Call this to update this._user from cookie if possible.
             if (token == null) return headers;
-            headers.Add("Authorization", String.Format("Bearer {0}", token.Value));
+            headers.Add("Authorization", String.Format("Bearer {0}", token.Token));
             //headers.Add("X-NoRedirect", "true");
             return headers;
         }
 
-        private FcsToken GetToken() {
+        private Access GetAccess() {
             var tokenCookie = this.Context.GetRequestCookie(this._config.TokenCookie);
-            var sessionCookie = this.Context.GetRequestCookie(this._config.SessionCookie);
-            var userCookie = this.Context.GetRequestCookie(this._config.UserCookie);
-            var token = this._token;
-            if (token != null && token.IsValid()) return token;
+            //var sessionCookie = this.Context.GetRequestCookie(this._config.SessionCookie);
+            //var userCookie = this.Context.GetRequestCookie(this._config.UserCookie);
+            var access = this._access;
+            if (access != null && access.Expires > DateTime.UtcNow) return access;
 
             if (tokenCookie != null &&
                 tokenCookie.Value.IsFull()) {
-                var user = userCookie != null && userCookie.Value.IsFull() ? userCookie.Value : null;
-                var session = sessionCookie != null && sessionCookie.Value.IsFull() ? sessionCookie.Value : null;
+                //var user = userCookie != null && userCookie.Value.IsFull() ? userCookie.Value : null;
+                //var session = sessionCookie != null && sessionCookie.Value.IsFull() ? sessionCookie.Value : null;
 
-                token = new FcsToken
-                        {
-                            Value = tokenCookie.Value,
-                            User = user,
-                            Session = session
-                        };
-                if (token.IsValid()) return token;
+                var token = JsonWebToken.DecodeToObject<AuthToken>(tokenCookie.Value, "UNKNOWN", false);
+                access = new Access
+                         {
+                             Token = tokenCookie.Value,
+                             Expires = token.Expires,
+                             Session = token.SessionId,
+                             User = token.UserName
+                         };
+                if (access.Expires > DateTime.UtcNow) return access;
             }
 
             //token = this.Context.GetSessionItem(SessionKey) as FcsToken;
             //if (token != null && token.IsValid()) return token;
 
-            token = _appToken;
-            if (token != null && token.IsValid()) return token;
+            access = _appAccess;
+            if (access != null && access.Expires > DateTime.UtcNow) return access;
 
             return null;
         }
     }
 }
+
+// ReSharper restore UnusedMember.Global
