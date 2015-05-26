@@ -29,15 +29,15 @@ namespace Fcs.Model {
     [Route("/catalogs/{catalogId}/categories", "POST")]
     public class CatalogCategory : IReturn<CatalogCategory> {
         public Guid? Id { get; set; }
-        public string TypeTag { get; set; }
+        public string Visibility { get; set; }
         public string Name { get; set; }
         public string Label { get; set; }
         public string Description { get; set; }
         public int SummaryMode { get; set; }
         public Guid? CatalogId { get; set; }
         public Guid? ParentCategoryId { get; set; }
-        public string DisplayTypeTag { get; set; }
-        public string OrderTypeTag { get; set; }
+        public string ChildDisplayType { get; set; }
+        public string ChildOrderType { get; set; }
         public int OrderNumber { get; set; }
         public string ReferenceId { get; set; }
         public string UpdatedBy { get; set; }
