@@ -270,7 +270,7 @@ namespace Fcs {
         }
 
         public ValidatePromoCodeResponse ValidatePromoCode(string code) {
-            this.Auth();
+            this.Auth(ignoreContextUser: true);
             var headers = this.GetHeaders();
             return this.ServiceClient.Post(new PromoCodeValidation {Code = code}, headers, null);
         }
