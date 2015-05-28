@@ -269,6 +269,12 @@ namespace Fcs {
             return this.ServiceClient.Post(promoCode, headers, null);
         }
 
+        public ValidatePromoCodeResponse ValidatePromoCode(string code) {
+            this.Auth();
+            var headers = this.GetHeaders();
+            return this.ServiceClient.Post(new PromoCodeValidation {Code = code}, headers, null);
+        }
+
         public AuthResponse Register(User user) {
             this.Auth();
             var requestHeaders = this.GetHeaders();

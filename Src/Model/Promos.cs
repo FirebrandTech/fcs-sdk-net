@@ -79,4 +79,22 @@ namespace Fcs.Model {
         public Decimal? DiscountAmount { get; set; }
         public bool Inactive { get; set; }
     }
+
+    /**
+    * @api {post} /promos/code/validate         Validate a Promo Code
+    * @apiName ValidatePromoCode
+    * @apiGroup Promo
+    * 
+    * @apiSuccess {string}    code              The Code a user enters to get the promo deal.
+    */
+    [Route("/promos/code/validate", "POST")]
+    public class PromoCodeValidation : IReturn<ValidatePromoCodeResponse> {
+        public string Code { get; set; }
+    }
+
+    public class ValidatePromoCodeResponse {
+        public bool Valid { get; set; }
+        public string Message { get; set; }
+        public Guid? PromoCodeId { get; set; }
+    }
 }
