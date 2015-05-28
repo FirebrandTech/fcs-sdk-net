@@ -5,6 +5,13 @@ using System.Collections.Generic;
 using ServiceStack;
 
 namespace Fcs.Model {
+
+    public class CatalogPublishStatus {
+        public const int Pending = 0;
+        public const int Active = 1;
+        public const int Archived = 2;
+    }
+
     /**
     * @api {post} /catalogs/:catalogId/categories Post Catalog Category
     * @apiName PostCatalogCategory
@@ -169,8 +176,8 @@ namespace Fcs.Model {
     public class CatalogProductCategory : IReturn<CatalogProductCategory> {
         public Guid? Id { get; set; }
         public Guid? CatalogProductId { get; set; }
-        public Guid CategoryId { get; set; }
-        public int Order { get; set; }
+        public Guid? CategoryId { get; set; }
+        public int? Order { get; set; }
         public string UpdatedBy { get; set; }
         public DateTime UpdatedAt { get; set; }
     }
