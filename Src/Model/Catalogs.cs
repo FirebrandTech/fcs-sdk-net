@@ -275,6 +275,7 @@ namespace Fcs.Model {
         public Guid? ProductId { get; set; }
         public Guid? CatalogId { get; set; }
         public Guid? CategoryId { get; set; }
+        public int? OrderInCategory { get; set; }
         public string Ean13 { get; set; }
         public string Ean { get; set; }
         public string Author { get; set; }
