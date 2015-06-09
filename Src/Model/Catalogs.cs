@@ -10,6 +10,7 @@ namespace Fcs.Model {
         public const int Pending = 0;
         public const int Active = 1;
         public const int Archived = 2;
+        public const int Committed = 3;
     }
 
     /**
@@ -47,8 +48,14 @@ namespace Fcs.Model {
         public string ChildOrderType { get; set; }
         public int OrderNumber { get; set; }
         public string ReferenceId { get; set; }
+        public bool? Committed { get; set; }
         public string UpdatedBy { get; set; }
         public DateTime UpdatedAt { get; set; }
+    }
+
+    [Route("/catalogs/categories/{id}/commit")]
+    public class CatalogCategoryCommit : IReturn<CatalogCategoryCommit> {
+        public Guid? Id { get; set; }
     }
 
     /**
@@ -155,6 +162,11 @@ namespace Fcs.Model {
         public DateTime? ArchiveDate { get; set; }
         public int PublishStatus { get; set; }
         public bool Active { get; set; }
+    }
+
+    [Route("/catalogs/{id}/commit")]
+    public class CatalogCommit : IReturn<CatalogCommit> {
+        public Guid? Id { get; set; }
     }
 
     /**

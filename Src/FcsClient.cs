@@ -233,6 +233,12 @@ namespace Fcs {
             return this.ServiceClient.Post(catalog, headers, null);
         }
 
+        public CatalogCommit CommitCatalog(CatalogCommit commit) {
+            this.Auth();
+            var headers = this.GetHeaders();
+            return this.ServiceClient.Post(commit, headers, null);
+        }
+
         public CatalogComment PublishCatalogComment(CatalogComment catalogComment) {
             this.Auth();
             var headers = this.GetHeaders();
@@ -243,6 +249,12 @@ namespace Fcs {
             this.Auth();
             var headers = this.GetHeaders();
             return this.ServiceClient.Post(catalogCategory, headers, null);
+        }
+
+        public CatalogCategoryCommit CommitCatalogCategory(CatalogCategoryCommit categoryCommit) {
+            this.Auth();
+            var headers = this.GetHeaders();
+            return this.ServiceClient.Post(categoryCommit, headers, null);
         }
 
         public CatalogProduct PublishCatalogProduct(CatalogProduct catalogProduct) {
