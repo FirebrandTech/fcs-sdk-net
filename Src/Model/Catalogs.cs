@@ -11,6 +11,7 @@ namespace Fcs.Model {
         public const int Active = 1;
         public const int Archived = 2;
         public const int Committed = 3;
+        public const int Failed = 4;
     }
 
     /**
@@ -164,9 +165,10 @@ namespace Fcs.Model {
         public bool Active { get; set; }
     }
 
-    [Route("/catalogs/{id}/commit")]
-    public class CatalogCommit : IReturn<CatalogCommit> {
+    [Route("/catalogs/{id}/status/{publishStatus}")]
+    public class CatalogStatus : IReturn<CatalogStatus> {
         public Guid? Id { get; set; }
+        public int? PublishStatus { get; set; }
     }
 
     /**

@@ -105,7 +105,7 @@ namespace UnitTests {
                                        A<Headers>._))
              .MustHaveHappened(Repeated.Exactly.Once);
 
-            fcs.PublishCatalog(new Catalog());
+            fcs.UpdateCatalog(new Catalog());
 
             A.CallTo(() => client.Post(A<Catalog>._,
                                        A<Headers>.That.Matches(h => h["X-Fcs-App"] == AppPrefix &&
@@ -149,7 +149,7 @@ namespace UnitTests {
                                        A<Headers>._))
              .MustHaveHappened(Repeated.Exactly.Once);
 
-            fcs.PublishCatalog(new Catalog());
+            fcs.UpdateCatalog(new Catalog());
 
             A.CallTo(() => client.Post(A<Catalog>._,
                                        A<Headers>.That.Matches(h => h["X-Fcs-App"] == AppPrefix &&
@@ -194,7 +194,7 @@ namespace UnitTests {
                                        A<Headers>._))
              .MustHaveHappened(Repeated.Exactly.Once);
 
-            fcs.PublishCatalog(new Catalog());
+            fcs.UpdateCatalog(new Catalog());
 
             A.CallTo(() => client.Post(A<Catalog>._,
                                        A<Headers>.That.Matches(h => h["X-Fcs-App"] == AppPrefix &&
@@ -263,7 +263,7 @@ namespace UnitTests {
                                            A<Headers>._))
                  .MustHaveHappened(Repeated.Exactly.Once);
 
-                fcs.PublishCatalog(new Catalog());
+                fcs.UpdateCatalog(new Catalog());
 
                 A.CallTo(() => client.Post(A<Catalog>._,
                                            A<Headers>.That.Matches(h => h["X-Fcs-App"] == AppPrefix &&
@@ -334,7 +334,7 @@ namespace UnitTests {
                                        A<Headers>._))
              .MustHaveHappened(Repeated.Exactly.Once);
 
-            fcs.PublishCatalog(new Catalog());
+            fcs.UpdateCatalog(new Catalog());
 
             A.CallTo(() => client.Post(A<Catalog>._,
                                        A<Headers>.That.Matches(h => h["X-Fcs-App"] == AppPrefix &&
@@ -381,7 +381,7 @@ namespace UnitTests {
                        };
 
 
-            fcs2.PublishCatalog(new Catalog());
+            fcs2.UpdateCatalog(new Catalog());
 
             A.CallTo(() => client.Post(A<Catalog>._,
                                        A<Headers>.That.Matches(h => h["X-Fcs-App"] == AppPrefix &&
@@ -425,7 +425,7 @@ namespace UnitTests {
                        };
 
 
-            fcs2.PublishCatalog(new Catalog());
+            fcs2.UpdateCatalog(new Catalog());
 
             //A.CallTo(() => context2.SetResponseCookie(A<string>._, A<string>._, A<DateTime>._))
             // .MustNotHaveHappened();
@@ -476,7 +476,7 @@ namespace UnitTests {
                        };
 
 
-            fcs2.PublishCatalog(new Catalog());
+            fcs2.UpdateCatalog(new Catalog());
             fcs2.Access.Token.Should().Be(this._userToken1);
             //fcs2.Access.Expires.Should().Be(this._expiration);
             fcs2.Access.User.Should().Be(UserName1);
@@ -541,7 +541,7 @@ namespace UnitTests {
                        };
 
             //fcs2.Auth();
-            fcs2.PublishCatalog(new Catalog());
+            fcs2.UpdateCatalog(new Catalog());
             A.CallTo(() => context2.SetResponseCookie(AppPrefix + "-token", this._userToken1, null))
              .MustHaveHappened(Repeated.Exactly.Once);
 
@@ -613,7 +613,7 @@ namespace UnitTests {
             A.CallTo(() => context2.SetResponseCookie(AppPrefix + "-token", this._userToken2, null))
              .MustHaveHappened(Repeated.Exactly.Once);
 
-            fcs2.PublishCatalog(new Catalog());
+            fcs2.UpdateCatalog(new Catalog());
             fcs2.Access.Token.Should().Be(this._userToken2);
             fcs2.Access.Expires.Should().BeCloseTo(this._expiration2, 1000);
             fcs2.Access.User.Should().Be(UserName2);

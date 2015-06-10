@@ -227,25 +227,25 @@ namespace Fcs {
             return this.ServiceClient.Post(order, this.GetHeaders(), null);
         }
 
-        public Catalog PublishCatalog(Catalog catalog) {
+        public Catalog UpdateCatalog(Catalog catalog) {
             this.Auth();
             var headers = this.GetHeaders();
             return this.ServiceClient.Post(catalog, headers, null);
         }
 
-        public CatalogCommit CommitCatalog(CatalogCommit commit) {
+        public CatalogStatus UpdateCatalogStatus(CatalogStatus commit) {
             this.Auth();
             var headers = this.GetHeaders();
             return this.ServiceClient.Post(commit, headers, null);
         }
 
-        public CatalogComment PublishCatalogComment(CatalogComment catalogComment) {
+        public CatalogComment UpdateCatalogComment(CatalogComment catalogComment) {
             this.Auth();
             var headers = this.GetHeaders();
             return this.ServiceClient.Post(catalogComment, headers, null);
         }
 
-        public CatalogCategory PublishCatalogCategory(CatalogCategory catalogCategory) {
+        public CatalogCategory UpdateCatalogCategory(CatalogCategory catalogCategory) {
             this.Auth();
             var headers = this.GetHeaders();
             return this.ServiceClient.Post(catalogCategory, headers, null);
@@ -257,13 +257,13 @@ namespace Fcs {
             return this.ServiceClient.Post(categoryCommit, headers, null);
         }
 
-        public CatalogProduct PublishCatalogProduct(CatalogProduct catalogProduct) {
+        public CatalogProduct UpdateCatalogProduct(CatalogProduct catalogProduct) {
             this.Auth();
             var headers = this.GetHeaders();
             return this.ServiceClient.Post(catalogProduct, headers, null);
         }
 
-        public CatalogProductCategory PublishCatalogProductCategory(CatalogProductCategory catalogProductCategory) {
+        public CatalogProductCategory UpdateCatalogProductCategory(CatalogProductCategory catalogProductCategory) {
             this.Auth();
             var headers = this.GetHeaders();
             return this.ServiceClient.Post(catalogProductCategory, headers, null);

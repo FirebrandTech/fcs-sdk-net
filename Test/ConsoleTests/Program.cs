@@ -16,7 +16,7 @@ namespace ConsoleTests {
 
                 // TEST
                 using (var client = new FcsClient(clientId, clientSecret, appId, "http://cloud.local/api/v2")) {
-                    var catalog = client.PublishCatalog(new Catalog
+                    var catalog = client.UpdateCatalog(new Catalog
                                                         {
                                                             Name = "TestCatalog",
                                                             App = "app-UABFp7"
