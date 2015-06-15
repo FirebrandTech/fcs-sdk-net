@@ -148,7 +148,6 @@ namespace Fcs.Model {
     * @apiSuccess {DateTime}  publishDate      Date published.
     * @apiSuccess {string}    updatedBy        UpdatedBy name.
     * @apiSuccess {DateTime}  updatedAt        UpdatedAt date.
-    * @apiSuccess {bool}      active           Active catalog.
     */
 
     [Route("/catalogs", "POST")]
@@ -162,7 +161,6 @@ namespace Fcs.Model {
         public DateTime? PublishDate { get; set; }
         public DateTime? ArchiveDate { get; set; }
         public int PublishStatus { get; set; }
-        public bool Active { get; set; }
     }
 
     [Route("/catalogs/{id}/status/{publishStatus}")]
