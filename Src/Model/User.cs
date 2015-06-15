@@ -29,7 +29,7 @@ namespace Fcs.Model {
     }
 
     [Route("/users/password/reset", "POST", Summary = "Send password reset email for a user")]
-    public class PasswordReset {
+    public class PasswordReset : IReturnVoid {
         public Guid? Id { get; set; }
         public string Email { get; set; }
     }

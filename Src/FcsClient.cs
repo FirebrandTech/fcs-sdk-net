@@ -222,6 +222,12 @@ namespace Fcs {
             return response;
         }
 
+        public void ResetPassword(PasswordReset req) {
+            this.Auth();
+            var headers = this.GetHeaders();
+            this.ServiceClient.Post(req, headers, null);
+        }
+
         public object PlaceOrder(Order order) {
             this.Auth(order.UserName ?? (order.User ?? new User()).Email);
             return this.ServiceClient.Post(order, this.GetHeaders(), null);

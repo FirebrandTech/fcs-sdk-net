@@ -20,6 +20,10 @@ namespace Fcs.Framework {
         TResponse Post<TResponse>(object request,
                                   Headers requestHeaders,
                                   Headers responseHeaders);
+
+        void Post(IReturnVoid request,
+                  Headers requestHeaders,
+                  Headers responseHeaders);
     }
 
     public interface IServiceClientFactory {
@@ -50,6 +54,14 @@ namespace Fcs.Framework {
             if (requestHeaders != null) this._client.RequestFilter = RequestFilter(requestHeaders);
             if (responseHeaders != null) this._client.ResponseFilter = ResponseFilter(responseHeaders);
             return this._client.Post(request);
+        }
+
+        public void Post(IReturnVoid request,
+                         Headers requestHeaders,
+                         Headers responseHeaders) {
+            if (requestHeaders != null) this._client.RequestFilter = RequestFilter(requestHeaders);
+            if (responseHeaders != null) this._client.ResponseFilter = ResponseFilter(responseHeaders);
+            this._client.Post(request);
         }
 
         public TResponse Post<TResponse>(object request,
