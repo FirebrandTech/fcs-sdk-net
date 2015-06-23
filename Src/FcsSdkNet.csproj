@@ -81,6 +81,7 @@
     <Compile Include="FcsClient.cs" />
     <Compile Include="FcsConfig.cs" />
     <Compile Include="Access.cs" />
+    <Compile Include="FcsModule.cs" />
     <Compile Include="Framework\FrameworkExtensions.cs" />
     <Compile Include="Framework\IContext.cs" />
     <Compile Include="Framework\IServiceClient.cs" />

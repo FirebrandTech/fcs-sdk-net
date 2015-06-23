@@ -68,7 +68,7 @@ namespace Fcs.Framework {
 
         public string GetRequestParam(string name) {
             if (HttpContext.Current == null) return null;
-            return HttpContext.Current.Request.Params.Get(name);
+            return HttpContext.Current.Request.QueryString.Get(name);
         }
 
         public Uri GetRequestUri() {
