@@ -137,7 +137,8 @@ namespace Fcs {
                     request.ClientId = this._config.ClientId;
                     request.ClientSecret = this._config.ClientSecret;
                 }
-                if (request.UserName.IsNullOrWhiteSpace()) {
+                if (request.UserName.IsNullOrWhiteSpace() &&
+                    request.ImpersonateUserName.IsNullOrWhiteSpace()) {
                     // No UserName passed in.  Check the context for the current UserName.
                     request.UserName = this.Context.CurrentUserName ?? (access ?? new Access()).User;
                 }
@@ -167,7 +168,8 @@ namespace Fcs {
                                  Token = response.Token,
                                  Expires = (response.Expires ?? DateTime.MinValue).ToUniversalTime(),
                                  User = response.UserName,
-                                 Session = response.Session
+                                 Session = response.Session,
+                                 Continue = response.Continue
                              };
                 }
 
@@ -186,6 +188,7 @@ namespace Fcs {
                            Expires = access.Expires,
                            Session = access.Session,
                            UserName = access.User,
+                           Continue = access.Continue
                        };
             }
         }

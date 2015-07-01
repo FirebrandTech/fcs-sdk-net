@@ -8,5 +8,6 @@ namespace Fcs {
         public DateTime Expires { get; set; }
         public string User { get; set; }
         public string Session { get; set; }
+        public string Continue { get; set; }
     }
 }
