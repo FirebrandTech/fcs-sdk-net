@@ -12,8 +12,7 @@ namespace Fcs.Model {
     public class AuthRequest : IReturn<AuthResponse> {
         public string UserName { get; set; }
         public string Password { get; set; }
-        //public string ImpersonateUserName { get; set; }
-        //public string AccessToken { get; set; }
+        public string ImpersonateUserName { get; set; }
         public string ClientId { get; set; }
         public string ClientSecret { get; set; }
         public string Continue { get; set; }
