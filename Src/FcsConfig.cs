@@ -45,7 +45,7 @@ namespace Fcs {
             this.ApiUrl = apiUrl ?? "https://cloud.firebrandtech.com/api/v2";
             this.ClientId = clientId;
             this.ClientSecret = clientSecret;
-            this.App = app ?? "fcs";
+            this.App = (app ?? "fcs").ToLower();
             this.TokenCookie = this.App + "-token";
             //this.UserCookie = this.App + "-user";
             //this.SessionCookie = this.App + "-session";
