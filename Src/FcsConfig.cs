@@ -15,7 +15,7 @@ namespace Fcs {
 
             if (string.IsNullOrWhiteSpace(clientId) ||
                 string.IsNullOrWhiteSpace(clientSecret)) {
-                throw new InvalidOperationException("FcsClient is not configured properly!  Please add the following to your appSettings: FcsClientId, FcsClientSecret, FcsAppId");
+                throw new InvalidOperationException("FcsClient is not configured properly!  Please add the following to your appSettings: FcsClientId, FcsClientSecret, FcsApp");
             }
             this.Init(clientId, clientSecret, app, url);
         }
