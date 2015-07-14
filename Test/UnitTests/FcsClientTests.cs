@@ -16,7 +16,7 @@ namespace UnitTests {
     public class FcsClientTests {
         private const string ClientId = "CLIENTID";
         private const string ClientSecret = "CLIENTSECRET";
-        private const string AppPrefix = "TST";
+        private const string AppPrefix = "tst";
         private const string UserName1 = "testuser1";
         private const string UserName2 = "testuser2";
         private const string Session1 = "SESSION";
