@@ -79,7 +79,7 @@ namespace ConsoleApplication1 {
             {
                 TotalPrice = 12.34m,
                 Items = items,
-                ReferenceId = "999",
+                ExternalOrderId = "999",
                 User = user,
                 ThrowErrors = false
             };
