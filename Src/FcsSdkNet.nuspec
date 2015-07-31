@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<package >
+    <metadata>
+        <id>$id$</id>
+        <version>$version$</version>
+        <title>$title$</title>
+        <authors>$author$</authors>
+        <owners>$author$</owners>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>$description$</description>
+        <releaseNotes>Initial release, with support for authentication and posting orders.</releaseNotes>
+        <copyright>Copyright 2015 Firebrand Technologies</copyright>
+        <dependencies>
+            <dependency id="ServiceStack.Client" version="4.0.33"/>
+            <dependency id="ServiceStack.Interfaces" version="4.0.33"/>
+            <dependency id="ServiceStack.Text" version="4.0.33"/>
+            <dependency id="JWT" version="1.3.4"/>
+        </dependencies>
+    </metadata>
+</package>
