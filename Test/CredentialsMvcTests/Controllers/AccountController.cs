@@ -15,7 +15,7 @@ namespace CredentialsMvcTests.Controllers {
         [HttpPost]
         public ActionResult Login(AuthRequest auth, string returnUrl) {
             try {
-                using (var fcs = new FcsClientPortable()) {
+                using (var fcs = new FcsClient()) {
                     var response = fcs.Auth(auth);
                     return this.Redirect(response.Continue ?? returnUrl ?? "~/");
                 }
@@ -27,7 +27,7 @@ namespace CredentialsMvcTests.Controllers {
 
         [HttpPost]
         public ActionResult Logout() {
-            using (var fcs = new FcsClientPortable()) {
+            using (var fcs = new FcsClient()) {
                 var response = fcs.Unauth();
                 return this.Redirect(response.Continue ?? "~/");
             }
