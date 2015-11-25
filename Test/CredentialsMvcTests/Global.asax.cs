@@ -18,7 +18,7 @@ namespace CredentialsMvcTests {
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
-            FcsClient.LogFactory = new NLogFactory();
+            FcsClientPortable.LogFactory = new NLogFactory();
             Logger.Debug("Application_Start");
         }
 
@@ -41,7 +41,7 @@ namespace CredentialsMvcTests {
         //}
 
         private void Application_PreRequestHandlerExecute(object sender, EventArgs e) {
-            FcsClient.EnsureAuthorized();
+            FcsClientPortable.EnsureAuthorized();
         }
     }
 }

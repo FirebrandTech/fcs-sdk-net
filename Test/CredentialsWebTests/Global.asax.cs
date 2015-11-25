@@ -16,8 +16,8 @@ namespace WebFormsTest {
             // Code that runs on application startup
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
-            FcsClient.LogFactory = new NLogFactory();
-            FcsClient.InitApplication(this);
+            FcsClientPortable.LogFactory = new NLogFactory();
+            FcsClientPortable.InitApplication(this);
         }
 
         //private void Application_BeginRequest(object sender, EventArgs e) {

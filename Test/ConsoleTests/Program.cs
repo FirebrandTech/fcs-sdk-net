@@ -12,10 +12,10 @@ namespace ConsoleTests {
                 var clientId = Environment.GetEnvironmentVariable("FcsClientId");
                 var clientSecret = Environment.GetEnvironmentVariable("FcsClientSecret");
                 var appId = Environment.GetEnvironmentVariable("FcsAppId");
-                FcsClient.LogFactory = new NLogFactory();
+                FcsClientPortable.LogFactory = new NLogFactory();
 
                 // TEST
-                using (var client = new FcsClient(clientId, clientSecret, appId, "http://cloud.local/api/v2")) {
+                using (var client = new FcsClientPortable(clientId, clientSecret, appId, "http://cloud.local/api/v2")) {
                     var catalog = client.UpdateCatalog(new Catalog
                                                         {
                                                             Name = "TestCatalog",

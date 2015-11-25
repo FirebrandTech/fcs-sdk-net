@@ -69,7 +69,7 @@ namespace UnitTests {
                                                    ClientSecret,
                                                    JwtHashAlgorithm.HS256);
 
-            FcsClient.Reset();
+            FcsClientPortable.Reset();
         }
 
         [Fact]
@@ -88,7 +88,7 @@ namespace UnitTests {
             A.CallTo(() => factory.CreateClient(A<string>._))
              .Returns(client);
 
-            var fcs = new FcsClient(ClientId, ClientSecret, AppPrefix)
+            var fcs = new FcsClientPortable(ClientId, ClientSecret, AppPrefix)
                       {
                           Context = context,
                           ServiceClientFactory = factory
@@ -130,7 +130,7 @@ namespace UnitTests {
             A.CallTo(() => factory.CreateClient(A<string>._))
              .Returns(client);
 
-            var fcs = new FcsClient(ClientId, ClientSecret, AppPrefix)
+            var fcs = new FcsClientPortable(ClientId, ClientSecret, AppPrefix)
                       {
                           Context = context,
                           ServiceClientFactory = factory
@@ -176,7 +176,7 @@ namespace UnitTests {
             A.CallTo(() => factory.CreateClient(A<string>._))
              .Returns(client);
 
-            var fcs = new FcsClient(ClientId, ClientSecret, AppPrefix)
+            var fcs = new FcsClientPortable(ClientId, ClientSecret, AppPrefix)
                       {
                           Context = context,
                           ServiceClientFactory = factory
@@ -235,7 +235,7 @@ namespace UnitTests {
             A.CallTo(() => factory.CreateClient(A<string>._))
              .Returns(client);
 
-            using (var fcs = new FcsClient(ClientId, ClientSecret, AppPrefix)
+            using (var fcs = new FcsClientPortable(ClientId, ClientSecret, AppPrefix)
                              {
                                  Context = context,
                                  ServiceClientFactory = factory
@@ -306,7 +306,7 @@ namespace UnitTests {
             A.CallTo(() => factory.CreateClient(A<string>._))
              .Returns(client);
 
-            var fcs = new FcsClient(ClientId, ClientSecret, AppPrefix)
+            var fcs = new FcsClientPortable(ClientId, ClientSecret, AppPrefix)
                       {
                           Context = context,
                           ServiceClientFactory = factory
@@ -359,7 +359,7 @@ namespace UnitTests {
             A.CallTo(() => factory.CreateClient(A<string>._))
              .Returns(client);
 
-            var fcs = new FcsClient(ClientId, ClientSecret, AppPrefix)
+            var fcs = new FcsClientPortable(ClientId, ClientSecret, AppPrefix)
                       {
                           Context = context,
                           ServiceClientFactory = factory
@@ -374,7 +374,7 @@ namespace UnitTests {
             A.CallTo(() => context2.GetRequestCookie(AppPrefix + "-token"))
              .Returns(new HttpCookie(AppPrefix + "-token", this._appToken));
 
-            var fcs2 = new FcsClient(ClientId, ClientSecret, AppPrefix)
+            var fcs2 = new FcsClientPortable(ClientId, ClientSecret, AppPrefix)
                        {
                            Context = context2,
                            ServiceClientFactory = factory
@@ -406,7 +406,7 @@ namespace UnitTests {
             A.CallTo(() => factory.CreateClient(A<string>._))
              .Returns(client);
 
-            var fcs = new FcsClient(ClientId, ClientSecret, AppPrefix)
+            var fcs = new FcsClientPortable(ClientId, ClientSecret, AppPrefix)
                       {
                           Context = context,
                           ServiceClientFactory = factory
@@ -418,7 +418,7 @@ namespace UnitTests {
             A.CallTo(() => context2.GetRequestCookie(AppPrefix + "-token"))
              .Returns(new HttpCookie(AppPrefix + "-token", this._userToken1));
 
-            var fcs2 = new FcsClient(ClientId, ClientSecret, AppPrefix)
+            var fcs2 = new FcsClientPortable(ClientId, ClientSecret, AppPrefix)
                        {
                            Context = context2,
                            ServiceClientFactory = factory
@@ -454,7 +454,7 @@ namespace UnitTests {
             A.CallTo(() => factory.CreateClient(A<string>._))
              .Returns(client);
 
-            var fcs = new FcsClient(ClientId, ClientSecret, AppPrefix)
+            var fcs = new FcsClientPortable(ClientId, ClientSecret, AppPrefix)
                       {
                           Context = context,
                           ServiceClientFactory = factory
@@ -469,7 +469,7 @@ namespace UnitTests {
             A.CallTo(() => context2.GetRequestCookie(AppPrefix + "-token"))
              .Returns(new HttpCookie(AppPrefix + "-token", this._userToken1));
 
-            var fcs2 = new FcsClient(ClientId, ClientSecret, AppPrefix)
+            var fcs2 = new FcsClientPortable(ClientId, ClientSecret, AppPrefix)
                        {
                            Context = context2,
                            ServiceClientFactory = factory
@@ -519,7 +519,7 @@ namespace UnitTests {
             A.CallTo(() => factory.CreateClient(A<string>._))
              .Returns(client);
 
-            var fcs = new FcsClient(ClientId, ClientSecret, AppPrefix)
+            var fcs = new FcsClientPortable(ClientId, ClientSecret, AppPrefix)
                       {
                           Context = context,
                           ServiceClientFactory = factory
@@ -534,7 +534,7 @@ namespace UnitTests {
             A.CallTo(() => context2.GetRequestCookie(AppPrefix + "-token"))
              .Returns(new HttpCookie(AppPrefix + "-token", this._userToken1));
 
-            var fcs2 = new FcsClient(ClientId, ClientSecret, AppPrefix)
+            var fcs2 = new FcsClientPortable(ClientId, ClientSecret, AppPrefix)
                        {
                            Context = context2,
                            ServiceClientFactory = factory
@@ -588,7 +588,7 @@ namespace UnitTests {
             A.CallTo(() => factory.CreateClient(A<string>._))
              .Returns(client);
 
-            var fcs = new FcsClient(ClientId, ClientSecret, AppPrefix)
+            var fcs = new FcsClientPortable(ClientId, ClientSecret, AppPrefix)
                       {
                           Context = context,
                           ServiceClientFactory = factory
@@ -603,7 +603,7 @@ namespace UnitTests {
             A.CallTo(() => context2.GetRequestCookie(AppPrefix + "-token"))
              .Returns(new HttpCookie(AppPrefix + "-token", this._userToken2));
 
-            var fcs2 = new FcsClient(ClientId, ClientSecret, AppPrefix)
+            var fcs2 = new FcsClientPortable(ClientId, ClientSecret, AppPrefix)
                        {
                            Context = context2,
                            ServiceClientFactory = factory

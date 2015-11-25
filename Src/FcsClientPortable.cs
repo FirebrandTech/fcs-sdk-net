@@ -12,7 +12,7 @@ using StringExtensions = ServiceStack.StringExtensions;
 
 namespace Fcs {
     // ReSharper disable once ClassWithVirtualMembersNeverInherited.Global
-    public class FcsClient : IDisposable {
+    public class FcsClientPortable : IDisposable {
         private const string AppHeader = "X-Fcs-App";
         //private const string SessionHeader = "X-Fcs-Session";
         //private const string SessionKey = "FCS-TOKEN";
@@ -25,17 +25,17 @@ namespace Fcs {
         private Access _access;
         private IServiceClient _client;
 
-        static FcsClient() {
+        static FcsClientPortable() {
             JsonWebToken.JsonSerializer = new ServiceStackJsonSerializer();
         }
         // ReSharper disable once MemberCanBePrivate.Global
-        public FcsClient() : this(new FcsConfig()) {}
+        public FcsClientPortable() : this(new FcsConfig()) {}
 
-        public FcsClient(string clientId, string clientSecret, string app = "fcs", string apiUrl = null)
+        public FcsClientPortable(string clientId, string clientSecret, string app = "fcs", string apiUrl = null)
             : this(new FcsConfig(clientId, clientSecret, app, apiUrl)) {}
 
         // ReSharper disable once MemberCanBePrivate.Global
-        public FcsClient(FcsConfig config) {
+        public FcsClientPortable(FcsConfig config) {
             this._config = config;
             this.Context = new AspNetContext();
             this.ServiceClientFactory = new JsonServiceClientFactory();

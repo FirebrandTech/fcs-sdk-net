@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 
-[assembly: AssemblyTitle("FcsSdkNet")]
+[assembly: AssemblyTitle("FcsSdkNetPortable")]
 [assembly: AssemblyDescription("An SDK for accessing Firebrand's Cloud Services APIs")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Firebrand Technologies")]
-[assembly: AssemblyProduct("FcsSdkNet")]
+[assembly: AssemblyProduct("FcsSdkNetPortable")]
 [assembly: AssemblyCopyright("Copyright © 2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -22,7 +22,7 @@ using System.Runtime.InteropServices;
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 
-[assembly: Guid("eb657aa6-7082-4dd1-a7d4-48ae99e859b8")]
+[assembly: Guid("909aebbe-1545-4664-986f-18f317c0c6a4")]
 
 // Version information for an assembly consists of the following four values:
 //
