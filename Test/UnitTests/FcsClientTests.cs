@@ -8,6 +8,7 @@ using Fcs.Framework;
 using Fcs.Model;
 using FluentAssertions;
 //using JWT;
+using Jose;
 using Xunit;
 
 namespace UnitTests {
@@ -35,17 +36,17 @@ namespace UnitTests {
         public FcsClientTests() {
             this._expiration1 = DateTime.UtcNow.AddDays(1);
             this._expiration2 = DateTime.UtcNow.AddDays(2);
-            this._appToken = JsonWebToken.Encode(new AuthToken
+            this._appToken =  Jose.JWT.Encode(new AuthToken
                                                  {
                                                      ApplicationId = this._appId,
                                                      Expires = this._expiration1,
                                                      AppPrefix = AppPrefix,
                                                      SessionId = Session1
                                                  },
-                                                 ClientSecret,
-                                                 JwtHashAlgorithm.HS256);
+                                                 ClientSecret, 
+                                                 JwsAlgorithm.HS256);
 
-            this._userToken1 = JsonWebToken.Encode(new AuthToken
+            this._userToken1 = Jose.JWT.Encode(new AuthToken
                                                    {
                                                        ApplicationId = this._appId,
                                                        UserId = this._userId1,
@@ -55,9 +56,9 @@ namespace UnitTests {
                                                        SessionId = Session1
                                                    },
                                                    ClientSecret,
-                                                   JwtHashAlgorithm.HS256);
+                                                   JwsAlgorithm.HS256);
 
-            this._userToken2 = JsonWebToken.Encode(new AuthToken
+            this._userToken2 = Jose.JWT.Encode(new AuthToken
                                                    {
                                                        ApplicationId = this._appId,
                                                        UserId = this._userId2,
@@ -67,7 +68,7 @@ namespace UnitTests {
                                                        SessionId = Session1
                                                    },
                                                    ClientSecret,
-                                                   JwtHashAlgorithm.HS256);
+                                                   JwsAlgorithm.HS256);
 
             FcsClient.Reset();
         }
