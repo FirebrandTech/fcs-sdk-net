@@ -4,7 +4,9 @@ using System;
 using System.Web;
 using Fcs.Framework;
 using Fcs.Model;
-using JWT;
+//using JWT;
+using Jose;
+
 using ServiceStack.Logging;
 using StringExtensions = ServiceStack.StringExtensions;
 
@@ -25,9 +27,11 @@ namespace Fcs {
         private Access _access;
         private IServiceClient _client;
 
-        static FcsClient() {
-            JsonWebToken.JsonSerializer = new ServiceStackJsonSerializer();
-        }
+        //static FcsClient() {
+
+
+        //   // JoseJWTJsonSerializer.JsonSerializer = new ServiceStackJsonSerializer();
+        //}
         // ReSharper disable once MemberCanBePrivate.Global
         public FcsClient() : this(new FcsConfig()) {}
 
@@ -351,7 +355,7 @@ namespace Fcs {
                 //var user = userCookie != null && userCookie.Value.IsFull() ? userCookie.Value : null;
                 //var session = sessionCookie != null && sessionCookie.Value.IsFull() ? sessionCookie.Value : null;
 
-                var token = JsonWebToken.DecodeToObject<AuthToken>(tokenCookie.Value, "UNKNOWN", false);
+                var token = JWT.Decode<AuthToken>(tokenCookie.Value); //JsonWebToken.DecodeToObject<AuthToken>(tokenCookie.Value, "UNKNOWN", false);
                 access = new Access
                          {
                              Token = tokenCookie.Value,
