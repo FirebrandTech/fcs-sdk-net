@@ -297,7 +297,7 @@ namespace Fcs {
             return this.ServiceClient.Post(new PromoCodeValidation {Code = code}, headers, null);
         }
 
-        public List<DomainSummary> GetDomainsFull(DomainsFull domains) {
+        public List<DomainSummary> GetDomains(DomainsFull domains) {
             this.Auth();
             var headers = this.GetHeaders();
             return this.ServiceClient.Get(domains, headers, null);
