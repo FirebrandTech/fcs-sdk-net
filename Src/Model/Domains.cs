@@ -6,12 +6,8 @@ using ServiceStack;
 
 namespace Fcs.Model {
 
-    [Route("/domains", "GET")]
-    public class Domains : Filter, IReturn<List<DomainSummary>> {
-        public int? Service { get; set; }
-        public string Status { get; set; }
-        public string CalcStatus { get; set; }
-    }
+    [Route("/domains/full", "GET")]
+    public class DomainsFull : IReturn<List<DomainSummary>> { }
 
     public class DomainSummary {
         public Guid? Id { get; set; }
