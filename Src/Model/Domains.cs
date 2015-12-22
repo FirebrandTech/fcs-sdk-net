@@ -15,6 +15,7 @@ namespace Fcs.Model {
         public DateTime UpdatedAt { get; set; }
         public string Name { get; set; }
         public string ServiceLevel { get; set; }
+        public int? ServiceLevelValue { get; set; }
         public string Status { get; set; }
         public string CalculatedStatus { get; set; }
     }
