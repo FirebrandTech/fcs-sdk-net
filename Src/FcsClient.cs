@@ -1,6 +1,7 @@
 ﻿// Copyright © 2010-2015 Firebrand Technologies
 
 using System;
+using System.Collections.Generic;
 using System.Web;
 using Fcs.Framework;
 using Fcs.Model;
@@ -294,6 +295,12 @@ namespace Fcs {
             this.Auth(ignoreContextUser: true);
             var headers = this.GetHeaders();
             return this.ServiceClient.Post(new PromoCodeValidation {Code = code}, headers, null);
+        }
+
+        public List<Domains> GetDomains(Domains domains) {
+            this.Auth();
+            var headers = this.GetHeaders();
+            return this.ServiceClient.Get(domains, headers, null);
         }
 
         public AuthResponse Register(User user) {

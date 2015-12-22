@@ -24,6 +24,10 @@ namespace Fcs.Framework {
         void Post(IReturnVoid request,
                   Headers requestHeaders,
                   Headers responseHeaders);
+
+        TResponse Get<TResponse>(IReturn<TResponse> request,
+                                 Headers requestHeaders,
+                                 Headers responseHeaders);
     }
 
     public interface IServiceClientFactory {
@@ -77,6 +81,14 @@ namespace Fcs.Framework {
                                            Headers responseHeaders) {
             this._client.RequestFilter = RequestFilter(requestHeaders);
             return this._client.Delete(request);
+        }
+
+        public TResponse Get<TResponse>(IReturn<TResponse> request,
+                                        Headers requestHeaders,
+                                        Headers responseHeaders) {
+            if (requestHeaders != null) this._client.RequestFilter = RequestFilter(requestHeaders);
+            if (responseHeaders != null) this._client.ResponseFilter = ResponseFilter(responseHeaders);
+            return this._client.Get(request);
         }
 
         public void Dispose() {
