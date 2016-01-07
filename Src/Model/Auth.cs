@@ -41,6 +41,9 @@ namespace Fcs.Model {
         public string Uri { get; set; }
     }
 
+    [Route("/auth/connected", "GET")]
+    public class VerifyApiConnectRequest : IReturn<bool> {}
+
     public class AuthResponse {
         public string Continue { get; set; }
         public string Token { get; set; }

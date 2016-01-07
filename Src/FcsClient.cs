@@ -303,6 +303,12 @@ namespace Fcs {
             return this.ServiceClient.Get(domains, headers, null);
         }
 
+        public bool VerifyApiConnection(VerifyApiConnectRequest verifyApiConnect) {
+            this.Auth();
+            var headers = this.GetHeaders();
+            return this.ServiceClient.Get(verifyApiConnect, headers, null);
+        }
+
         public AuthResponse Register(User user) {
             this.Auth();
             var requestHeaders = this.GetHeaders();
