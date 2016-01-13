@@ -1,7 +1,6 @@
 ﻿// Copyright © 2010-2015 Firebrand Technologies
 
 using System;
-using System.Collections.Generic;
 using System.Web;
 using Fcs.Framework;
 using Fcs.Model;
@@ -21,6 +20,7 @@ namespace Fcs {
         private static readonly object Sync = new object();
         private static bool _applicationInitialized;
         private static ILog _logger;
+        private static Access _appAccess;
         private readonly FcsConfig _config;
         private Access _access;
         private IServiceClient _client;
@@ -55,6 +55,9 @@ namespace Fcs {
             get { return this._access; }
         }
 
+        public static Access AppAccess {
+            get { return _appAccess; }
+        }
 
         private static ILog Logger {
             get { return _logger ?? (_logger = LogManager.GetLogger("FcsClient")); }
@@ -93,6 +96,10 @@ namespace Fcs {
             using (var fcs = new FcsClient()) {
                 fcs.Auth(ignoreContextUser: ignoreContextUser);
             }
+        }
+
+        public static void Reset() {
+            _appAccess = null;
         }
 
         protected virtual void Dispose(bool disposing) {
@@ -192,6 +199,11 @@ namespace Fcs {
         /// <param name="access">token information</param>
         private void SaveAccess(Access access) {
             this._access = access;
+
+            if (access.User.IsNullOrWhiteSpace()) {
+                // Access is app token.  Save it as the static appToken to minimize token creation.
+                _appAccess = access;
+            }
             this.Context.SetResponseCookie(this._config.TokenCookie, access.Token, null);
             //if (access.Session.IsFull()) {
             //    this.Context.SetResponseCookie(this._config.SessionCookie,
@@ -284,22 +296,6 @@ namespace Fcs {
             return this.ServiceClient.Post(new PromoCodeValidation {Code = code}, headers, null);
         }
 
-        public List<DomainSummary> GetDomains(DomainsFull domains) {
-            this.Auth();
-            var headers = this.GetHeaders();
-            return this.ServiceClient.Get(domains, headers, null);
-        }
-
-        public bool VerifyApiConnection() { 
-            return this.VerifyApiConnection(new VerifyApiConnectRequest());
-        }
-
-        public bool VerifyApiConnection(VerifyApiConnectRequest verifyApiConnect) {
-            this.Auth();
-            var headers = this.GetHeaders();
-            return this.ServiceClient.Get(verifyApiConnect, headers, null);
-        }
-
         public AuthResponse Register(User user) {
             this.Auth();
             var requestHeaders = this.GetHeaders();
@@ -365,6 +361,12 @@ namespace Fcs {
                          };
                 if (access.Expires > DateTime.UtcNow) return access;
             }
+
+            //token = this.Context.GetSessionItem(SessionKey) as FcsToken;
+            //if (token != null && token.IsValid()) return token;
+
+            access = _appAccess;
+            if (access != null && access.Expires > DateTime.UtcNow) return access;
 
             return null;
         }

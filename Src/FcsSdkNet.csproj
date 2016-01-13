@@ -89,7 +89,6 @@
     <Compile Include="Model\Auth.cs" />
     <Compile Include="Model\Cart.cs" />
     <Compile Include="Model\Catalogs.cs" />
-    <Compile Include="Model\Domains.cs" />
     <Compile Include="Model\Filter.cs" />
     <Compile Include="Model\IKeyValue.cs" />
     <Compile Include="Model\KeyValue.cs" />

@@ -68,6 +68,8 @@ namespace UnitTests {
                                                    },
                                                    ClientSecret,
                                                    JwtHashAlgorithm.HS256);
+
+            FcsClient.Reset();
         }
 
         [Fact]
