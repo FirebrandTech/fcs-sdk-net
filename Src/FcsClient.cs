@@ -325,6 +325,18 @@ namespace Fcs {
                    };
         }
 
+        public EanToAssetDetails GetDownloadUris(List<EanSaleDetails> eanSalesDetails, string userIdentifier, int? minutesTilExpiration = null) {
+            this.Auth();
+            var headers = this.GetHeaders();
+            var assetUriReq = new AssetDownloadUrisRequest {
+                EanDetails = eanSalesDetails,
+                UserIdentifier = userIdentifier,
+                MinutesTilExpiration = minutesTilExpiration
+            };
+            var resp = this.ServiceClient.Get(assetUriReq, headers, null);
+            return resp;
+        }
+
         private Headers GetHeaders() {
             var headers = new Headers
                           {

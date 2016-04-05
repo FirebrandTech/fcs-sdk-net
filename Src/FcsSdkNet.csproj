@@ -93,6 +93,7 @@
     <Compile Include="Model\Filter.cs" />
     <Compile Include="Model\IKeyValue.cs" />
     <Compile Include="Model\KeyValue.cs" />
+    <Compile Include="Model\Uri.cs" />
     <Compile Include="Model\Orders.cs" />
     <Compile Include="Model\Promos.cs" />
     <Compile Include="Model\User.cs" />
