@@ -21,6 +21,7 @@ namespace Fcs.Model {
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Email { get; set; }
+        public bool UserIsGuest { get; set; }
     }
 
     [Route("/auth/library/uri", "GET", Summary = "Redirect to Login Page")]

@@ -146,7 +146,8 @@ namespace Fcs {
                     access = null;
                 }
 
-                if (access == null) {
+                var forceGuestAccess = access != null && request.UserIsGuest && access.User.IsNullOrWhiteSpace(); // the request has app-level access but wants to get anonymous access for a user
+                if (access == null || forceGuestAccess) {
                     // We have determined that an Auth is necessary. Proceed...
                     var requestHeaders = this.GetHeaders();
                     Logger.DebugFormat("POST AUTH REQUEST: {0}", StringExtensions.ToJsv(request));
