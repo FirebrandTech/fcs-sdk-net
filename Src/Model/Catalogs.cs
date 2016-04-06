@@ -46,6 +46,7 @@ namespace Fcs.Model {
         public int SummaryMode { get; set; }
         public Guid? CatalogId { get; set; }
         public Guid? ParentCategoryId { get; set; }
+        public string TitleDisplayType { get; set; }
         public string ChildDisplayType { get; set; }
         public string ChildOrderType { get; set; }
         public int OrderNumber { get; set; }
