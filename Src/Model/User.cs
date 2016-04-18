@@ -64,6 +64,7 @@ namespace Fcs.Model {
         public string Phone { get; set; }
         public string GravatarUri { get; set; }
         public bool? OptInMail { get; set; }
+        public bool SendAuthToken { get; set; }
 
         [ApiMember(Name = "id", ParameterType = "path")]
         public Guid? Id { get; set; }
