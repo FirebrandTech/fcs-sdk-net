@@ -10,7 +10,7 @@ namespace Fcs.Model {
     // This means that the API consumer can sort their EANs however they want and use the dictionary 
     // to look up details for each EAN.
 
-    [Route("/uri/assets/externalDownloadUris", "GET")]
+    [Route("/uri/assets/externalDownloadUris", "GET,POST")]
     public class AssetDownloadUrisRequest : IReturn<EanToAssetDetails> {
         // ReSharper disable once CollectionNeverUpdated.Global
         public List<EanSaleDetails> EanDetails { get; set; }

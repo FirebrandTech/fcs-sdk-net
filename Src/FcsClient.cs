@@ -334,7 +334,7 @@ namespace Fcs {
                 UserIdentifier = userIdentifier,
                 MinutesTilExpiration = minutesTilExpiration
             };
-            var resp = this.ServiceClient.Get(assetUriReq, headers, null);
+            var resp = this.ServiceClient.Post(assetUriReq, headers, null);
             return resp;
         }
 
