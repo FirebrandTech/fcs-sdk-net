@@ -285,6 +285,12 @@ namespace Fcs {
             return this.ServiceClient.Post(new PromoCodeValidation {Code = code}, headers, null);
         }
 
+        public VersionDto UpdateVersion(VersionDto version) {
+            this.Auth();
+            var headers = this.GetHeaders();
+            return this.ServiceClient.Post(version, headers, null);
+        }
+
         public List<DomainSummary> GetDomains(DomainsFull domains) {
             this.Auth();
             var headers = this.GetHeaders();
