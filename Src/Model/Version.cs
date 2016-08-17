@@ -5,12 +5,13 @@ using ServiceStack;
 
 namespace Fcs.Model {
     /**
-    * @api {post} /promos Post Promo
-    * @apiName PostPromo
-    * @apiGroup Promo
+    * @api {post} /versions Post VersionDto
+    * @apiName PostVersion
+    * @apiGroup Version
     * 
     * @apiSuccess {Guid}      id                Version Id.
     * @apiSuccess {ReferenceId} domainId        Domain Id
+    * @apiSuccess {string}    domainAccessKey   Domain Access Key
     * @apiSuccess {string}    name              Source Name.
     * @apiSuccess {string}    number            Source Number.
     */
