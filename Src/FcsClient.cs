@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Web;
 using Fcs.Framework;
 using Fcs.Model;
@@ -67,6 +68,7 @@ namespace Fcs {
 
         private IServiceClient ServiceClient {
             get {
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
                 if (this._client != null) return this._client;
                 this._client = this.ServiceClientFactory.CreateClient(this._config.ApiUrl);
                 return this._client;
