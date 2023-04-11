@@ -87,13 +87,13 @@ namespace Fcs {
             EnsureAuthorized();
         }
 
-        public static void EnsureAuthorized(bool ignoreContextUser = false) {
+        public static void EnsureAuthorized(bool ignoreContextUser = false, SameSiteMode? sameSiteMode = null) {
             var url = HttpContext.Current.Request.Url;
             if (url.PathAndQuery.Contains("/__browserLink/")) return;
             Logger.DebugFormat("EnsureAuthorized: {0}", url);
 
             using (var fcs = new FcsClient()) {
-                fcs.Auth(ignoreContextUser: ignoreContextUser);
+                fcs.Auth(ignoreContextUser: ignoreContextUser, sameSiteMode: sameSiteMode);
             }
         }
 
@@ -108,17 +108,18 @@ namespace Fcs {
             GC.SuppressFinalize(this);
         }
 
-        public AuthResponse Auth(string userName = null, bool ignoreContextUser = false) {
+        public AuthResponse Auth(string userName = null, bool ignoreContextUser = false, SameSiteMode? sameSiteMode = null) {
             return this.Auth(new AuthRequest
                              {
                                  ClientId = this._config.ClientId,
                                  ClientSecret = this._config.ClientSecret,
                                  UserName = userName
                              },
-                             ignoreContextUser);
+                             ignoreContextUser,
+                             sameSiteMode);
         }
 
-        public AuthResponse Auth(AuthRequest request, bool ignoreContextUser = false) {
+        public AuthResponse Auth(AuthRequest request, bool ignoreContextUser = false, SameSiteMode? sameSiteMode = null) {
             lock (Sync) {
                 var tokenParam = this.Context.GetRequestParam(this._config.TokenParam);
                 if (request.Token.IsNullOrWhiteSpace()) {
@@ -169,7 +170,7 @@ namespace Fcs {
                              };
                 }
 
-                this.SaveAccess(access);
+                this.SaveAccess(access, sameSiteMode);
 
                 if (tokenParam.IsFull()) {
                     var uri = this.Context.GetRequestUri();
@@ -193,9 +194,9 @@ namespace Fcs {
         ///     Save the token information in the following places:  static, instance, and cookies.
         /// </summary>
         /// <param name="access">token information</param>
-        private void SaveAccess(Access access) {
+        private void SaveAccess(Access access, SameSiteMode? sameSiteMode = null) {
             this._access = access;
-            this.Context.SetResponseCookie(this._config.TokenCookie, access.Token, null);
+            this.Context.SetResponseCookie(this._config.TokenCookie, access.Token, null, sameSiteMode);
             //if (access.Session.IsFull()) {
             //    this.Context.SetResponseCookie(this._config.SessionCookie,
             //                                   access.Session,

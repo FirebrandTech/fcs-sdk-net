@@ -364,7 +364,7 @@ namespace UnitTests {
                       };
             fcs.Auth();
 
-            A.CallTo(() => context.SetResponseCookie(AppPrefix + "-token", this._appToken, null))
+            A.CallTo(() => context.SetResponseCookie(AppPrefix + "-token", this._appToken, null, null))
              .MustHaveHappened(Repeated.Exactly.Once);
 
             var context2 = A.Fake<IContext>();
@@ -459,7 +459,7 @@ namespace UnitTests {
                       };
             fcs.Auth();
 
-            A.CallTo(() => context.SetResponseCookie(AppPrefix + "-token", this._userToken1, null))
+            A.CallTo(() => context.SetResponseCookie(AppPrefix + "-token", this._userToken1, null, null))
              .MustHaveHappened(Repeated.Exactly.Once);
 
             var context2 = A.Fake<IContext>();
@@ -524,7 +524,7 @@ namespace UnitTests {
                       };
             fcs.Auth();
 
-            A.CallTo(() => context.SetResponseCookie(AppPrefix + "-token", this._appToken, null))
+            A.CallTo(() => context.SetResponseCookie(AppPrefix + "-token", this._appToken, null, null))
              .MustHaveHappened(Repeated.Exactly.Once);
 
             var context2 = A.Fake<IContext>();
@@ -540,7 +540,7 @@ namespace UnitTests {
 
             //fcs2.Auth();
             fcs2.UpdateCatalog(new Catalog());
-            A.CallTo(() => context2.SetResponseCookie(AppPrefix + "-token", this._userToken1, null))
+            A.CallTo(() => context2.SetResponseCookie(AppPrefix + "-token", this._userToken1, null, null))
              .MustHaveHappened(Repeated.Exactly.Once);
 
             fcs2.Access.Token.Should().Be(this._userToken1);
@@ -593,7 +593,7 @@ namespace UnitTests {
                       };
             fcs.Auth();
 
-            A.CallTo(() => context.SetResponseCookie(AppPrefix + "-token", this._userToken1, null))
+            A.CallTo(() => context.SetResponseCookie(AppPrefix + "-token", this._userToken1, null, null))
              .MustHaveHappened(Repeated.Exactly.Once);
 
             var context2 = A.Fake<IContext>();
@@ -608,7 +608,7 @@ namespace UnitTests {
                        };
 
             fcs2.Auth();
-            A.CallTo(() => context2.SetResponseCookie(AppPrefix + "-token", this._userToken2, null))
+            A.CallTo(() => context2.SetResponseCookie(AppPrefix + "-token", this._userToken2, null, null))
              .MustHaveHappened(Repeated.Exactly.Once);
 
             fcs2.UpdateCatalog(new Catalog());
