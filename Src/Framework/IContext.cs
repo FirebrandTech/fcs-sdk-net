@@ -15,7 +15,7 @@ namespace Fcs.Framework {
         object GetCacheItem(string key);
         string GetRequestParam(string name);
         HttpCookie GetRequestCookie(string name);
-        void SetResponseCookie(string name, string value, DateTime? expires);
+        void SetResponseCookie(string name, string value, DateTime? expires, SameSiteMode? sameSiteMode);
         Uri GetRequestUri();
         void Redirect(string url);
     }
@@ -82,7 +82,7 @@ namespace Fcs.Framework {
             return cookies.Get(name);
         }
 
-        public void SetResponseCookie(string name, string value, DateTime? expires = null) {
+        public void SetResponseCookie(string name, string value, DateTime? expires = null, SameSiteMode? sameSiteMode = null) {
             if (HttpContext.Current == null) return;
             var res = HttpContext.Current.Response;
             var cookies = res.Cookies;
@@ -94,6 +94,13 @@ namespace Fcs.Framework {
                              Secure = FormsAuthentication.RequireSSL,
                              Expires = expires != null ? expires.Value : DateTime.MinValue
                          };
+
+            if (sameSiteMode != null) {
+                cookie.SameSite = (SameSiteMode) sameSiteMode;
+
+                // SameSiteMode.None requires Secure=true
+                if (sameSiteMode == SameSiteMode.None) cookie.Secure = true;
+            }
 
             if (FormsAuthentication.CookieDomain.IsFull()) {
                 cookie.Domain = FormsAuthentication.CookieDomain;
